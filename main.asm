@@ -1,5 +1,4 @@
 INCLUDE Irvine32.inc
-INCLUDE GraphWin.inc
 
 .386
 .model flat, stdcall
@@ -9,7 +8,7 @@ ExitProcess PROTO, dwExitCode:DWORD
 .data
 
 ;=====================
-;=== BATTLESHIP ART ==
+;== BATTLESHIP ASCII =
 ;=====================
 
 BattleshipASCIIRow1 BYTE " _  _ ______    __ __   ___ _ ", 0
@@ -18,7 +17,7 @@ BattleshipASCIIRow3 BYTE "|_)| | |  | |__|____)| |_|_|", 0
 
 
 ;=====================
-;======= Ships =======
+;======= SHIPS =======
 ;=====================
 
 BattleShip BYTE "BattleShip(4)		", 0
@@ -31,17 +30,7 @@ Sweeper BYTE "Sweeper(2)		", 0
 ;==== PLAYER MAP =====
 ;=====================
 
-PlayerMapColumnCoord BYTE "#: |A|B|C|D|E|F|G|H|I|J|", 0
-PlayerMapRow0 BYTE "0: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow1 BYTE "1: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow2 BYTE "2: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow3 BYTE "3: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow4 BYTE "4: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow5 BYTE "5: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow6 BYTE "6: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow7 BYTE "7: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow8 BYTE "8: |_|_|_|_|_|_|_|_|_|_|", 0
-PlayerMapRow9 BYTE "9: |_|_|_|_|_|_|_|_|_|_|", 0
+PlayerMap BYTE "#: A|B|C|D|E|F|G|H|I|J0: _|_|_|_|_|_|_|_|_|_1: _|_|_|_|_|_|_|_|_|_2: _|_|_|_|_|_|_|_|_|_3: _|_|_|_|_|_|_|_|_|_4: _|_|_|_|_|_|_|_|_|_5: _|_|_|_|_|_|_|_|_|_6: _|_|_|_|_|_|_|_|_|_7: _|_|_|_|_|_|_|_|_|_8: _|_|_|_|_|_|_|_|_|_9: _|_|_|_|_|_|_|_|_|_",0
 
 ;=====================
 ;==== PLAYER SHIPS ===
@@ -58,17 +47,8 @@ PlayerSweeperHealth BYTE 2			; s
 ;=== COMPUTER MAP ====
 ;=====================
 
-ComputerMapColumnCoord BYTE "#: |A|B|C|D|E|F|G|H|I|J|", 0
-ComputerMapRow0 BYTE "0: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow1 BYTE "1: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow2 BYTE "2: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow3 BYTE "3: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow4 BYTE "4: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow5 BYTE "5: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow6 BYTE "6: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow7 BYTE "7: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow8 BYTE "8: |_|_|_|_|_|_|_|_|_|_|", 0
-ComputerMapRow9 BYTE "9: |_|_|_|_|_|_|_|_|_|_|", 0
+ComputerMapViewable BYTE "#: A|B|C|D|E|F|G|H|I|J0: _|_|_|_|_|_|_|_|_|_1: _|_|_|_|_|_|_|_|_|_2: _|_|_|_|_|_|_|_|_|_3: _|_|_|_|_|_|_|_|_|_4: _|_|_|_|_|_|_|_|_|_5: _|_|_|_|_|_|_|_|_|_6: _|_|_|_|_|_|_|_|_|_7: _|_|_|_|_|_|_|_|_|_8: _|_|_|_|_|_|_|_|_|_9: _|_|_|_|_|_|_|_|_|_",0
+ComputerMapHidden BYTE "#: A|B|C|D|E|F|G|H|I|J0: _|_|_|_|_|_|_|_|_|_1: _|_|_|_|_|_|_|_|_|_2: _|_|_|_|_|_|_|_|_|_3: _|_|_|_|_|_|_|_|_|_4: _|_|_|_|_|_|_|_|_|_5: _|_|_|_|_|_|_|_|_|_6: _|_|_|_|_|_|_|_|_|_7: _|_|_|_|_|_|_|_|_|_8: _|_|_|_|_|_|_|_|_|_9: _|_|_|_|_|_|_|_|_|_",0
 
 ;=====================
 ;=== COMPUTER SHIPS ==
@@ -82,7 +62,7 @@ ComputerDestroyerHealth BYTE 3		; D
 ComputerSweeperHealth BYTE 2		; s
 
 ;=====================
-;= GAME UI MECHANICS =
+;=== UI MECHANICS ====
 ;=====================
 
 BeginText BYTE "Welcome to BattleShip! Press OK to begin.", 0
@@ -106,16 +86,168 @@ ComputerMoveMessage BYTE "The computer's turn has resulted in a: ", 0
 main PROC
 
 	call Randomize
-	call GeneratePlayerMap
-	call GenerateComputerMap
-	call GenerateUIMechancis
-	call BeginGame
-	call PlaceShips
+	call GenerateGameTitle
+	call GenerateMaps
+	call GenerateUIMechanics
+	call PlacePlayerShips
+	;call PlaceComputerShips
 
 INVOKE ExitProcess, 0
 main ENDP
 
+.data
+
+rowCoordinate WORD ?
+columnCoordinate WORD ?
+mapIndex DWORD ?
+
+mouseClickDirection BYTE ?	; 1: Left, 2: Right
+leftClickMessage BYTE "Left Click!", 0
+rightClickMessage BYTE "Right Click!", 0
+
+_INPUT_RECORD STRUCT
+	EventType WORD ?
+	WORD ?
+	UNION
+		KeyEvent KEY_EVENT_RECORD <>
+		MouseEvent MOUSE_EVENT_RECORD <>
+	ENDS
+_INPUT_RECORD ENDS
+
+InputRecord _INPUT_RECORD <>
+ConsoleMode DWORD 0
+hStdln DWORD 0
+nRead DWORD 0
+
+yoloz COORD 10 DUP (<>)
+pt COORD <>
+
+.code
+
+;===============================
+GetMouseCoordinates PROC
+;===============================
+; 
+; Returns mouse coordinates 
+; on left and right mouse clicks
+;
+; X: rowCoordinate
+; Y: columnCoordinate
+;
+;================================
+
+	INVOKE GetStdHandle, STD_INPUT_HANDLE
+	mov hStdln, eax
+
+	INVOKE GetConsoleMode, hStdln, ADDR ConsoleMode
+	mov eax, 0090h
+	INVOKE SetConsoleMode, hStdln, eax
+
+	mainLoop:
+
+	INVOKE ReadConsoleInput, hStdln, ADDR InputRecord, 1, ADDR nRead
+
+	movzx eax, InputRecord.EventType
+	jne skip
+
+	cmp InputRecord.MouseEvent.dwButtonState, 1
+	jne skip
+	je HandleLeftClick
+	
+
+	cmp InputRecord.MouseEvent.dwButtonState, 2
+	jne skip
+	je HandleRightClick
+
+	HandleLeftClick:
+
+	mov ax, InputRecord.MouseEvent.dwMousePosition.X
+	mov bx, InputRecord.MouseEvent.dwMousePosition.Y
+
+	mov mouseClickDirection, 1
+	mov rowCoordinate, bx
+	mov columnCoordinate, ax
+
+	jmp Complete
+	
+	HandleRightClick:
+
+	mov ax, InputRecord.MouseEvent.dwMousePosition.X
+	mov bx, InputRecord.MouseEvent.dwMousePosition.Y
+
+	mov mouseClickDirection, 2
+	mov rowCoordinate, bx
+	mov columnCoordinate, ax
+
+	jmp Complete
+
+	skip:
+
+	cmp ecx, 0
+	jne mainLoop
+
+	Complete:
+
+	ret
+GetMouseCoordinates ENDP
+
+TranslateRowCoordinate PROC
+
+	mov ax, rowCoordinate
+	call WriteInt
+
+	mov eax, 0
+	mov eax, 25	; A1 in Map
+	mov bx, 6	; Starting X-Row coordinate in console
+
+	SeekRow:
+
+	cmp bx, rowCoordinate
+	je RowFound
+
+	add eax, 22
+	inc bx
+	jmp SeekRow
+
+	RowFound:
+
+	mov mapIndex, eax
+	call WriteInt
+
+	ret
+TranslateRowCoordinate ENDP
+
+TranslateColumnCoordinate PROC
+
+	mov ax, columnCoordinate
+	call WriteInt
+
+	mov eax, mapIndex	; Starting from where we are in the row of the map
+	;call WriteInt
+	mov bx, 23			; Starting coordinate for A-column
+
+	SeekColumn:
+
+	cmp bx, columnCoordinate
+	je ColumnFound
+
+	add ebx, 2
+	add eax, 2
+
+	jmp SeekColumn
+
+	ColumnFound:
+
+	mov mapIndex, eax
+	call WriteInt
+
+	ret
+TranslateColumnCoordinate ENDP
+
 GenerateGameTitle PROC
+
+	mov eax, white
+	call SetTextColor
 
 	mov dl, 38
 	mov dh, 1
@@ -142,184 +274,189 @@ GenerateGameTitle PROC
 	mov dh, 0
 	call GoToXY
 
+	call Crlf
+
 	ret
 GenerateGameTitle ENDP
 
-GeneratePlayerMap PROC
+GenerateMaps PROC
 
-	call GenerateGameTitle
+	mov esi, 0
+	mov esi, OFFSET PlayerMap ; esi points to the player board
 
 	mov dl, 20
 	mov dh, 5
 	call GoToXY
 
-	mov edx, OFFSET PlayerMapColumnCoord
-	call WriteString
+	mov ecx, 11
 
-	mov dl, 20
-	mov dh, 6
-	call GoToXY
+	CreatePlayerMap:
+		push ecx
+		mov ecx, 22
+		PrintPlayerRow:
+			mov al, [esi]
 
-	mov edx, OFFSET PlayerMapRow0
-	call WriteString
+			; Missed Character
 
-	mov dl, 20
-	mov dh, 7
-	call GoToXY
+			cmp al, 176
+			jne CheckPlayerHit
+			mov eax, blue
+			call SetTextColor
+			mov eax, 176
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow1
-	call WriteString
+			CheckPlayerHit:
 
-	mov dl, 20
-	mov dh, 8
-	call GoToXY
+			cmp al, 178
+			jne CheckCarrier
+			mov eax, red
+			call SetTextColor
+			mov eax, 178
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow2
-	call WriteString
+			CheckCarrier:
 
-	mov dl, 20
-	mov dh, 9
-	call GoToXY
+			cmp al, 67
+			jne CheckBattleship
+			mov eax, gray
+			call SetTextColor
+			mov eax, 67
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow3
-	call WriteString
+			CheckBattleship:
 
-	mov dl, 20
-	mov dh, 10
-	call GoToXY
+			cmp al, 66
+			jne CheckSubmarine
+			mov eax, gray
+			call SetTextColor
+			mov eax, 66
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow4
-	call WriteString
+			CheckSubmarine:
 
-	mov dl, 20
-	mov dh, 11
-	call GoToXY
+			cmp al, 85
+			jne CheckDestroyer
+			mov eax, gray
+			call SetTextColor
+			mov eax, 85
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow5
-	call WriteString
+			CheckDestroyer:
 
-	mov dl, 20
-	mov dh, 12
-	call GoToXY
+			cmp al, 68
+			jne CheckSweeper
+			mov eax, gray
+			call SetTextColor
+			mov eax, 68
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow6
-	call WriteString
+			CheckSweeper:
 
-	mov dl, 20
-	mov dh, 13
-	call GoToXY
+			cmp al, 83
+			jne PrintPlayerMapCharacter
+			mov eax, gray
+			call SetTextColor
+			mov eax, 83
+			call WriteChar
+			jmp FoundPlayerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow7
-	call WriteString
+			PrintPlayerMapCharacter:
 
-	mov dl, 20
-	mov dh, 14
-	call GoToXY
+			mov eax, lightCyan
+			call SetTextColor
+			mov eax, [esi]
+			call WriteChar
 
-	mov edx, OFFSET PlayerMapRow8
-	call WriteString
+			FoundPlayerMapCharacter:
 
-	mov dl, 20
-	mov dh, 15
-	call GoToXY
+			inc esi
 
-	mov edx, OFFSET PlayerMapRow9
-	call WriteString
+			cmp ecx, 0
+			je PlayerRowComplete
+			dec ecx
+		jne PrintPlayerRow
 
-	mov dl, 0
-	mov dh, 0
-	call GoToXY
+		PlayerRowComplete:
 
-	ret
-GeneratePlayerMap ENDP
+		pop ecx
+		inc dh
 
-GenerateComputerMap PROC
+		call GoToXY
+		;call Crlf
+
+		cmp ecx, 0
+		dec ecx
+	jne CreatePlayerMap
+
+	mov edi, 0
+	mov edi, OFFSET ComputerMapViewable ; edi points to the viewable computer board
 
 	mov dl, 60
 	mov dh, 5
 	call GoToXY
 
-	mov edx, OFFSET PlayerMapColumnCoord
-	call WriteString
+	mov ecx, 11
 
-	mov dl, 60
-	mov dh, 6
-	call GoToXY
+	CreateComputerBoard:
+		push ecx
+		mov ecx, 22
+		PrintComputerRow:
+			mov al, [edi]
 
-	mov edx, OFFSET PlayerMapRow0
-	call WriteString
+			; Missed Character
 
-	mov dl, 60
-	mov dh, 7
-	call GoToXY
+			cmp al, 176
+			jne CheckComputerHit
+			mov eax, blue
+			call SetTextColor
+			mov eax, 176
+			call WriteChar
+			jmp FoundComputerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow1
-	call WriteString
+			CheckComputerHit:
 
-	mov dl, 60
-	mov dh, 8
-	call GoToXY
+			cmp al, 178
+			jne PrintComputerMapCharacter
+			mov eax, red
+			call SetTextColor
+			mov eax, 178
+			call WriteChar
+			jmp FoundComputerMapCharacter
 
-	mov edx, OFFSET PlayerMapRow2
-	call WriteString
+			PrintComputerMapCharacter:
 
-	mov dl, 60
-	mov dh, 9
-	call GoToXY
+			mov eax, lightCyan
+			call SetTextColor
+			mov eax, [edi]
+			call WriteChar
 
-	mov edx, OFFSET PlayerMapRow3
-	call WriteString
+			FoundComputerMapCharacter:
+		
+			inc edi
 
-	mov dl, 60
-	mov dh, 10
-	call GoToXY
+		loop PrintComputerRow
+		
+		pop ecx
+		inc dh
 
-	mov edx, OFFSET PlayerMapRow4
-	call WriteString
+		call GoToXY
+		;call Crlf
 
-	mov dl, 60
-	mov dh, 11
-	call GoToXY
+	loop CreateComputerBoard
 
-	mov edx, OFFSET PlayerMapRow5
-	call WriteString
-
-	mov dl, 60
-	mov dh, 12
-	call GoToXY
-
-	mov edx, OFFSET PlayerMapRow6
-	call WriteString
-
-	mov dl, 60
-	mov dh, 13
-	call GoToXY
-
-	mov edx, OFFSET PlayerMapRow7
-	call WriteString
-
-	mov dl, 60
-	mov dh, 14
-	call GoToXY
-
-	mov edx, OFFSET PlayerMapRow8
-	call WriteString
-
-	mov dl, 60
-	mov dh, 15
-	call GoToXY
-
-	mov edx, OFFSET PlayerMapRow9
-	call WriteString
-
-	mov dl, 0
-	mov dh, 0
-	call GoToXY
+	mov eax, white
+	call SetTextColor
 
 	ret
-GenerateComputerMap ENDP
+GenerateMaps ENDP
 
-GenerateUIMechancis PROC
+GenerateUIMechanics PROC
 
 	mov dl, 30
 	mov dh, 18
@@ -368,30 +505,305 @@ GenerateUIMechancis PROC
 	call GoToXY
 
 	ret
-GenerateUIMechancis ENDP
+GenerateUIMechanics ENDP
 
-BeginGame PROC
+PlacePlayerShips PROC
 
-	mov ebx, 0
-	mov edx, OFFSET BeginText
-	mov eax, 2000
-	call Delay
-	call MsgBox
+	call PlacePlayerCarrier
+	call PlacePlayerBattleship
+	call PlacePlayerSubmarine
+	call PlacePlayerDestroyer
+	call PlacePlayerSweeper
 
 	ret
-BeginGame ENDP
+PlacePlayerShips ENDP
 
-PlaceShips PROC
+PlacePlayerCarrier PROC
 
-	mov ebx, OFFSET BattleShip
-	mov cl, PlayerBattleShipHealth
-	call AskPlacement
-	mov ebx, OFFSET Carrier
-	mov cl, PlayerCarrierHealth
-	call AskPlacement
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
 
-ret
-PlaceShips ENDP
+	cmp mouseClickDirection, 1
+	je VerticalCarrierPlacement
+
+	cmp mouseClickDirection, 2
+	je HorizontalCarrierPlacement
+
+	VerticalCarrierPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+	inc edi
+
+	mov ecx, 5
+	PVC:
+
+		mov al, 67
+		mov [edi], al
+		add edi, 22
+
+	loop PVC
+
+	jmp CarrierPlaced
+
+	HorizontalCarrierPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 5
+	PHC:
+
+		mov al, 67
+		mov [edi], al
+		inc edi
+
+	loop PHC
+
+	CarrierPlaced:
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlacePlayerCarrier ENDP
+
+PlacePlayerBattleship PROC
+
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+
+	cmp mouseClickDirection, 1
+	je VerticalBattleshipPlacement
+
+	cmp mouseClickDirection, 2
+	je HorizontalBattleshipPlacement
+
+	VerticalBattleshipPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 4
+	PVB:
+
+		mov al, 66
+		mov [edi], al
+		add edi, 22
+
+	loop PVB
+
+	jmp BattleshipPlaced
+
+	HorizontalBattleshipPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 4
+	PHB:
+
+		mov al, 66
+		mov [edi], al
+		inc edi
+
+	loop PHB
+
+	BattleshipPlaced:
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlacePlayerBattleship ENDP
+
+PlacePlayerSubmarine PROC
+
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+
+	cmp mouseClickDirection, 1
+	je VerticalSubmarinePlacement
+
+	cmp mouseClickDirection, 2
+	je HorizontalSubmarinePlacement
+
+	VerticalSubmarinePlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 3
+	PVU:
+
+		mov al, 85
+		mov [edi], al
+		add edi, 22
+
+	loop PVU
+
+	jmp SubmarinePlaced
+
+	HorizontalSubmarinePlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 3
+	PHU:
+
+		mov al, 85
+		mov [edi], al
+		inc edi
+
+	loop PHU
+
+	SubmarinePlaced:
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlacePlayerSubmarine ENDP
+
+PlacePlayerDestroyer PROC
+
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+
+	cmp mouseClickDirection, 1
+	je VerticalDestroyerPlacement
+
+	cmp mouseClickDirection, 2
+	je HorizontalDestroyerPlacement
+
+	VerticalDestroyerPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 3
+	PVD:
+
+		mov al, 68
+		mov [edi], al
+		add edi, 22
+
+	loop PVD
+
+	jmp DestroyerPlaced
+
+	HorizontalDestroyerPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 3
+	PHD:
+
+		mov al, 68
+		mov [edi], al
+		inc edi
+
+	loop PHD
+
+	DestroyerPlaced:
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlacePlayerDestroyer ENDP
+
+PlacePlayerSweeper PROC
+
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+
+	cmp mouseClickDirection, 1
+	je VerticalSweeperPlacement
+
+	cmp mouseClickDirection, 2
+	je HorizontalSweeperPlacement
+
+	VerticalSweeperPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 2
+	PVS:
+
+		mov al, 83
+		mov [edi], al
+		add edi, 22
+
+	loop PVS
+
+	jmp SweeperPlaced
+
+	HorizontalSweeperPlacement:
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, 2
+	PHS:
+
+		mov al, 83
+		mov [edi], al
+		inc edi
+
+	loop PHS
+
+	SweeperPlaced:
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlacePlayerSweeper ENDP
+
+PlaceComputerShips PROC
+
+	call PlaceComputerCarrier
+	call PlaceComputerBattleship
+	call PlaceComputerSubmarine
+	call PlaceComputerDestroyer
+	call PlaceComputerSweeper
+
+	ret
+PlaceComputerShips ENDP
+
+PlaceComputerCarrier PROC
+
+	ret
+PlaceComputerCarrier ENDP
+
+PlaceComputerBattleship PROC
+
+	ret
+PlaceComputerBattleship ENDP
+
+PlaceComputerSubmarine PROC
+
+	ret
+PlaceComputerSubmarine ENDP
+
+PlaceComputerDestroyer PROC
+
+	ret
+PlaceComputerDestroyer ENDP
+
+PlaceComputerSweeper PROC
+
+	ret
+PlaceComputerSweeper ENDP
 
 AskPlacement PROC
 mov eax, 0
