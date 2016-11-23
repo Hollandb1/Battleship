@@ -72,8 +72,11 @@ ColMin BYTE 63
 ColMax BYTE 81
 RowMin BYTE 6
 RowMax BYTE 15
+CurrentRow BYTE ?
+CurrentCol BYTE ?
 
 ;Ship arrays row, col, row, col...
+OccupiedCoordinatesArray BYTE 34 DUP (0)
 ComputerCarrierShipArray BYTE 10 DUP (?)
 ComputerBattleShipArray BYTE 8 DUP (?)
 ComputerSubmarineShipArray BYTE 6 DUP (?)
@@ -105,6 +108,7 @@ main PROC
 	call GenerateUIMechanics
 	call PlacePlayerShips
 	;call PlaceComputerShips
+	call PlaceComputerCarrier
 
 INVOKE ExitProcess, 0
 main ENDP
@@ -795,7 +799,83 @@ PlaceComputerShips PROC
 PlaceComputerShips ENDP
 
 PlaceComputerCarrier PROC
+	mov dl, 30
+	mov dh, 30
+	call gotoxy
+	mov lowerbound, 1
+	mov upperbound, 2
 
+	call BetterRandomNumber
+	cmp al, 1
+	je vertical 
+
+	horizontal:
+		mov esi, OFFSET ComputerCarrierShipArray
+		movzx ebx, RowMax						;1st row coorinate
+		mov upperbound, ebx
+		movzx ebx, RowMin
+		mov lowerbound, ebx
+		call BetterRandomNumber
+		mov currentRow, al						;dh = row coordinate
+		mov [esi], al
+		inc esi
+
+		mov bl, ComputerCarrierHealth		;1st column coordinate
+		mov bh, ColMax
+		sub bh, bl
+		movzx ebx, bh
+		mov upperbound, ebx
+		movzx ebx, ColMin
+		mov lowerbound, ebx
+		call BetterRandomOdd
+		mov currentCol, al
+		mov [esi], al
+
+		movzx ecx, ComputerCarrierHealth
+		dec ecx
+		call FillArrayVertically
+			
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerCarrierShipArray
+
+		mov bl, ComputerCarrierHealth		;1st row coorinate
+		mov bh, RowMax		
+		sub bh, bl
+		movzx ebx, bh				
+		mov upperbound, ebx
+		movzx ebx, RowMin
+		mov lowerbound, ebx
+		call BetterRandomNumber
+		mov currentRow, al							;dh = row coordinate
+		mov [esi], al
+		inc esi
+
+		
+		movzx ebx, ColMax			;1st column coordinate
+		mov upperbound, ebx
+		movzx ebx, ColMin
+		mov lowerbound, ebx
+		call BetterRandomOdd
+		mov currentCol, al					;dl=col coordinate
+		mov [esi], al
+
+		movzx ecx, ComputerCarrierHealth
+		dec ecx
+		call FillArrayHorizontally
+
+	
+	return:
+	mov esi, OFFSET ComputerCarrierShipArray
+	mov ecx, lengthof ComputerCarrierShipArray
+	
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
 	ret
 PlaceComputerCarrier ENDP
 
@@ -819,8 +899,11 @@ PlaceComputerSweeper PROC
 	ret
 PlaceComputerSweeper ENDP
 
+CheckCollision PROC
+ret 
+CheckCollision ENDP
 ;-----------------------------------------------------
-; BetterRandomRange
+; BetterRandomNumber
 ; produces a random int with lower and upper bound
 ; Receives: upperbound, lowerbound
 ; Returns: EAX = the random int
@@ -871,5 +954,39 @@ BetterRandomOdd proc
 
 ret
 BetterRandomOdd endp
+FillArrayVertically PROC
+	mov dh, currentRow
+	mov dl, currentCol
 
+	FillArray:
+		inc esi
+		inc dh
+		mov [esi], dh
+		mov [edi], dh
+		inc esi
+		inc edi
+		mov [esi], dl
+		mov [edi], dl
+	loop FillArray
+
+ret
+FillArrayVertically ENDP
+FillArrayHorizontally PROC
+mov dh, currentRow
+mov dl, currentCol
+
+	FillArray:
+		inc edi
+		inc esi
+		add dl, 2
+		mov [esi], dh
+		mov [edi], dh
+		inc esi
+		inc edi
+		mov [esi], dl
+		mov [edi], dl
+	loop FillArray
+
+ret
+FillArrayHorizontally ENDP
 END main
