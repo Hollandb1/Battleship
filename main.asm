@@ -799,9 +799,7 @@ PlaceComputerShips PROC
 PlaceComputerShips ENDP
 
 PlaceComputerCarrier PROC
-	mov dl, 30
-	mov dh, 30
-	call gotoxy
+
 	mov lowerbound, 1
 	mov upperbound, 2
 
@@ -899,9 +897,10 @@ PlaceComputerSweeper PROC
 	ret
 PlaceComputerSweeper ENDP
 
-CheckCollision PROC
+
+CheckRandPlacementCollision PROC
 ret 
-CheckCollision ENDP
+CheckRandPlacementCollision ENDP
 ;-----------------------------------------------------
 ; BetterRandomNumber
 ; produces a random int with lower and upper bound
