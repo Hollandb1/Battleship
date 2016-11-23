@@ -802,66 +802,29 @@ PlaceComputerCarrier PROC
 
 	mov lowerbound, 1
 	mov upperbound, 2
-
 	call BetterRandomNumber
 	cmp al, 1
 	je vertical 
 
 	horizontal:
 		mov esi, OFFSET ComputerCarrierShipArray
-		movzx ebx, RowMax						;1st row coorinate
-		mov upperbound, ebx
-		movzx ebx, RowMin
-		mov lowerbound, ebx
-		call BetterRandomNumber
-		mov currentRow, al						;dh = row coordinate
-		mov [esi], al
 		inc esi
-
-		mov bl, ComputerCarrierHealth		;1st column coordinate
-		mov bh, ColMax
-		sub bh, bl
-		movzx ebx, bh
-		mov upperbound, ebx
-		movzx ebx, ColMin
-		mov lowerbound, ebx
-		call BetterRandomOdd
-		mov currentCol, al
-		mov [esi], al
-
-		movzx ecx, ComputerCarrierHealth
-		dec ecx
-		call FillArrayVertically
-			
-		jmp return
-
-	vertical:
-		mov esi, OFFSET ComputerCarrierShipArray
-
-		mov bl, ComputerCarrierHealth		;1st row coorinate
-		mov bh, RowMax		
-		sub bh, bl
-		movzx ebx, bh				
-		mov upperbound, ebx
-		movzx ebx, RowMin
-		mov lowerbound, ebx
-		call BetterRandomNumber
-		mov currentRow, al							;dh = row coordinate
-		mov [esi], al
-		inc esi
-
-		
-		movzx ebx, ColMax			;1st column coordinate
-		mov upperbound, ebx
-		movzx ebx, ColMin
-		mov lowerbound, ebx
-		call BetterRandomOdd
-		mov currentCol, al					;dl=col coordinate
-		mov [esi], al
+		mov bl, ComputerCarrierHealth
+		call PlaceHorizontal
 
 		movzx ecx, ComputerCarrierHealth
 		dec ecx
 		call FillArrayHorizontally
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerCarrierShipArray
+		mov bl, ComputerCarrierHealth
+		call PlaceVertical
+
+		movzx ecx, ComputerCarrierHealth
+		dec ecx
+		call FillArrayVertically
 
 	
 	return:
@@ -897,7 +860,86 @@ PlaceComputerSweeper PROC
 	ret
 PlaceComputerSweeper ENDP
 
+PlaceHorizontal PROC
 
+	mov bh, ColMax
+	sub bh, bl
+	movzx ebx, bh
+	mov upperbound, ebx
+	movzx ebx, ColMin
+	mov lowerbound, ebx
+	call BetterRandomOdd
+	mov currentCol, al
+	mov [esi], al 
+	dec esi
+
+	movzx ebx, RowMax						;1st row coorinate
+	mov upperbound, ebx
+	movzx ebx, RowMin
+	mov lowerbound, ebx
+	call BetterRandomNumber
+	mov currentRow, al						;dh = row coordinate
+	mov [esi], al
+	inc esi
+
+	ret
+PlaceHorizontal ENDP
+
+PlaceVertical PROC
+
+	mov bh, RowMax		
+	sub bh, bl
+	movzx ebx, bh				
+	mov upperbound, ebx
+	movzx ebx, RowMin
+	mov lowerbound, ebx
+	call BetterRandomNumber
+	mov currentRow, al							;dh = row coordinate
+	mov [esi], al
+	inc esi
+
+	movzx ebx, ColMax			;1st column coordinate
+	mov upperbound, ebx
+	movzx ebx, ColMin
+	mov lowerbound, ebx
+	call BetterRandomOdd
+	mov currentCol, al					;dl=col coordinate
+	mov [esi], al
+
+	ret 
+PlaceVertical ENDP
+
+FillArrayVertically PROC
+	mov dh, currentRow
+	mov dl, currentCol
+
+	FillArray:
+		inc esi
+		inc dh
+		mov [esi], dh
+		mov [edi], dh
+		inc esi
+		inc edi
+		mov [esi], dl
+		mov [edi], dl
+	loop FillArray
+
+ret
+FillArrayVertically ENDP
+FillArrayHorizontally PROC
+mov dh, currentRow
+mov dl, currentCol
+
+	FillArray:
+		inc esi
+		add dl, 2
+		mov [esi], dh
+		inc esi
+		mov [esi], dl
+	loop FillArray
+
+ret
+FillArrayHorizontally ENDP
 CheckRandPlacementCollision PROC
 ret 
 CheckRandPlacementCollision ENDP
@@ -953,39 +995,5 @@ BetterRandomOdd proc
 
 ret
 BetterRandomOdd endp
-FillArrayVertically PROC
-	mov dh, currentRow
-	mov dl, currentCol
 
-	FillArray:
-		inc esi
-		inc dh
-		mov [esi], dh
-		mov [edi], dh
-		inc esi
-		inc edi
-		mov [esi], dl
-		mov [edi], dl
-	loop FillArray
-
-ret
-FillArrayVertically ENDP
-FillArrayHorizontally PROC
-mov dh, currentRow
-mov dl, currentCol
-
-	FillArray:
-		inc edi
-		inc esi
-		add dl, 2
-		mov [esi], dh
-		mov [edi], dh
-		inc esi
-		inc edi
-		mov [esi], dl
-		mov [edi], dl
-	loop FillArray
-
-ret
-FillArrayHorizontally ENDP
 END main
