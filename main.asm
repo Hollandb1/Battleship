@@ -62,6 +62,26 @@ ComputerDestroyerHealth BYTE 3		; D
 ComputerSweeperHealth BYTE 2		; s
 
 ;=====================
+;=== RAND PLACEMENT ==
+;=====================
+
+;Bounds
+UpperBound DWORD ?
+LowerBound DWORD ?
+ColMin BYTE 63
+ColMax BYTE 81
+RowMin BYTE 6
+RowMax BYTE 15
+
+;Ship arrays row, col, row, col...
+ComputerCarrierShipArray BYTE 10 DUP (?)
+ComputerBattleShipArray BYTE 8 DUP (?)
+ComputerSubmarineShipArray BYTE 6 DUP (?)
+ComputerDestroyerShipArray BYTE 6 DUP (?)
+ComputerSweeperShipArray BYTE 4 DUP (?)
+
+
+;=====================
 ;=== UI MECHANICS ====
 ;=====================
 
@@ -69,12 +89,6 @@ BeginText BYTE "Welcome to BattleShip! Press OK to begin.", 0
 
 PlayerText BYTE "Player", 0
 ComputerText BYTE "Computer", 0
-
-ShipPlacementDirection BYTE "Would you like to place this ship vertical(0) or horizontal(1)? ", 0
-Clear BYTE "															", 0
-ShipPlacementVertical BYTE "On the Player Map, select the topmost position for your ship...", 0
-ShipPlacementHorizontal BYTE "On the Player Map, select the leftmost positoin for your ship...", 0
-ShipPlacementError BYTE "Invalid placement. Please try again."
 
 TotalHealthText BYTE "Total Health: ", 0
 ShipsRemainingText BYTE "Ships Remaining: ", 0
@@ -805,58 +819,57 @@ PlaceComputerSweeper PROC
 	ret
 PlaceComputerSweeper ENDP
 
-AskPlacement PROC
-mov eax, 0
-	Ask:
-		mov dl, 0
-		mov dh, 25
-		call GoToXY
+;-----------------------------------------------------
+; BetterRandomRange
+; produces a random int with lower and upper bound
+; Receives: upperbound, lowerbound
+; Returns: EAX = the random int
+;-----------------------------------------------------
+BetterRandomNumber proc
 
-		mov edx, ebx
-		call WriteString
-		call crlf
-		mov edx, OFFSET Clear
-		call WriteString
-		call crlf
-		call WriteString
+	mov ebx, lowerbound
+	mov eax, upperbound
+	sub eax, ebx
+	inc eax
+	call RandomRange
+	add eax, ebx
 
-		mov dl, 0
-		mov dh, 26
-		call GoToXY
-		mov edx, OFFSET ShipPlacementDirection
-		call WriteString
-		call ReadInt
-		
-		cmp eax, 0
-		je vertical
-		cmp eax, 1
-		je horizontal
-		jmp Ask
-
-		Error:
-			mov edx, OFFSET ShipPlacementError
-			call WriteString
-
-		horizontal:
-			mov edx, OFFSET ShipPlacementHorizontal
-			call WriteString
-			call PlaceHorizontal
-			jmp return
-		vertical:
-			mov edx, OFFSET ShipPlacementVertical
-			call WriteString
-return:
 ret
-AskPlacement ENDP
+BetterRandomNumber endp
 
-PlaceHorizontal PROC
+;-----------------------------------------------------
+; BetterRandomOdd
+; produces a random odd int with lower and upper bound
+; Receives: upperbound, lowerbound
+; Returns: EAX = the random int
+;-----------------------------------------------------
 
-check:
+BetterRandomOdd proc
+	
+	mov ebx, lowerbound
+	mov eax, upperbound
+	sub eax, ebx
+	inc eax
+	call RandomRange
+	add eax, ebx
 
-jmp check
+	mov edx, eax
+	mov bl, 2
+	div bl
+	cmp ah, 0
+	jne write
+	cmp edx, upperbound
+	je decrement
+	inc edx
+	jmp write
 
-return:
+	decrement:
+	dec edx
+
+	write:
+		mov eax, edx
+
 ret
-PlaceHorizontal ENDP
+BetterRandomOdd endp
 
 END main
