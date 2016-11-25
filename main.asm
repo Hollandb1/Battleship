@@ -78,7 +78,7 @@ CurrentCol BYTE ?
 ;Ship arrays row, col, row, col...
 OccupiedCoordinatesArray BYTE 34 DUP (0)
 ComputerCarrierShipArray BYTE 10 DUP (?)
-ComputerBattleShipArray BYTE 8 DUP (?)
+ComputerBattleShipShipArray BYTE 8 DUP (?)
 ComputerSubmarineShipArray BYTE 6 DUP (?)
 ComputerDestroyerShipArray BYTE 6 DUP (?)
 ComputerSweeperShipArray BYTE 4 DUP (?)
@@ -107,8 +107,8 @@ main PROC
 	call GenerateMaps
 	call GenerateUIMechanics
 	call PlacePlayerShips
-	;call PlaceComputerShips
-	call PlaceComputerCarrier
+	call PlaceComputerShips
+	;call PlaceComputerCarrier
 
 INVOKE ExitProcess, 0
 main ENDP
@@ -837,26 +837,175 @@ PlaceComputerCarrier PROC
 	call Writeint
 	inc esi
 	loop loopx
+	call crlf
 	ret
 PlaceComputerCarrier ENDP
 
 PlaceComputerBattleship PROC
+	mov lowerbound, 1
+	mov upperbound, 2
+	call BetterRandomNumber
+	cmp al, 1
+	je vertical 
 
+	horizontal:
+		mov esi, OFFSET ComputerBattleshipShipArray
+		inc esi
+		mov bl, ComputerBattleShipHealth
+		call PlaceHorizontal
+
+		movzx ecx, ComputerBattleShipHealth
+		dec ecx
+		call FillArrayHorizontally
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerBattleshipShipArray
+		mov bl, ComputerBattleShipHealth
+		call PlaceVertical
+
+		movzx ecx, ComputerBattleShipHealth
+		dec ecx
+		call FillArrayVertically
+
+	
+	return:
+	mov esi, OFFSET ComputerBattleshipShipArray
+	mov ecx, lengthof ComputerBattleshipShipArray
+	
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
+	call crlf
 	ret
 PlaceComputerBattleship ENDP
 
 PlaceComputerSubmarine PROC
+	mov lowerbound, 1
+	mov upperbound, 2
+	call BetterRandomNumber
+	cmp al, 1
+	je vertical 
 
+	horizontal:
+		mov esi, OFFSET ComputerSubmarineShipArray
+		inc esi
+		mov bl, ComputerSubmarineHealth
+		call PlaceHorizontal
+
+		movzx ecx, ComputerSubmarineHealth
+		dec ecx
+		call FillArrayHorizontally
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerSubmarineShipArray
+		mov bl, ComputerSubmarineHealth
+		call PlaceVertical
+
+		movzx ecx, ComputerSubmarineHealth
+		dec ecx
+		call FillArrayVertically
+
+	
+	return:
+	mov esi, OFFSET ComputerSubmarineShipArray
+	mov ecx, lengthof ComputerSubmarineShipArray
+	
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
+	call crlf
 	ret
 PlaceComputerSubmarine ENDP
 
 PlaceComputerDestroyer PROC
+	mov lowerbound, 1
+	mov upperbound, 2
+	call BetterRandomNumber
+	cmp al, 1
+	je vertical 
 
+	horizontal:
+		mov esi, OFFSET ComputerDestroyerShipArray
+		inc esi
+		mov bl, ComputerDestroyerHealth
+		call PlaceHorizontal
+
+		movzx ecx, ComputerDestroyerHealth
+		dec ecx
+		call FillArrayHorizontally
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerDestroyerShipArray
+		mov bl, ComputerDestroyerHealth
+		call PlaceVertical
+
+		movzx ecx, ComputerDestroyerHealth
+		dec ecx
+		call FillArrayVertically
+
+	
+	return:
+	mov esi, OFFSET ComputerDestroyerShipArray
+	mov ecx, lengthof ComputerDestroyerShipArray
+	
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
+	call crlf
 	ret
 PlaceComputerDestroyer ENDP
 
 PlaceComputerSweeper PROC
+	mov lowerbound, 1
+	mov upperbound, 2
+	call BetterRandomNumber
+	cmp al, 1
+	je vertical 
 
+	horizontal:
+		mov esi, OFFSET ComputerSweeperShipArray
+		inc esi
+		mov bl, ComputerSweeperHealth
+		call PlaceHorizontal
+
+		movzx ecx, ComputerSweeperHealth
+		dec ecx
+		call FillArrayHorizontally
+		jmp return
+
+	vertical:
+		mov esi, OFFSET ComputerSweeperShipArray
+		mov bl, ComputerSweeperHealth
+		call PlaceVertical
+
+		movzx ecx, ComputerSweeperHealth
+		dec ecx
+		call FillArrayVertically
+
+	
+	return:
+	mov esi, OFFSET ComputerSweeperShipArray
+	mov ecx, lengthof ComputerSweeperShipArray
+	
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
+	call crlf
 	ret
 PlaceComputerSweeper ENDP
 
