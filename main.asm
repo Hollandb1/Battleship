@@ -108,7 +108,7 @@ main PROC
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
-	;call PlacePlayerShips
+	call PlacePlayerShips
 	call PlaceComputerShips
 
 INVOKE ExitProcess, 0
@@ -1110,6 +1110,7 @@ CheckRandPlacementCollision PROC
 
 ret 
 CheckRandPlacementCollision ENDP
+
 CheckShipCollision PROC uses EBX EDX
 	mov al, 0
 	LoopOuter:
