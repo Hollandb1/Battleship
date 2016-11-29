@@ -15,6 +15,7 @@ BattleshipASCIIRow1 BYTE " _  _ ______    __ __   ___ _ ", 0
 BattleshipASCIIRow2 BYTE "|_)|_| |  | |  |_ (_ |_| | |_)", 0
 BattleshipASCIIRow3 BYTE "|_)| | |  | |__|____)| |_|_|", 0
 
+
 ;=====================
 ;======= SHIPS =======
 ;=====================
@@ -73,14 +74,25 @@ RowMin BYTE 6
 RowMax BYTE 15
 CurrentRow BYTE ?
 CurrentCol BYTE ?
+CurrentShipHealth BYTE ?
+CurrentShipLocation DWORD ?
+Collision BYTE "Collision!",0
+Matches BYTE 0
 
 ;Ship arrays row, col, row, col...
-OccupiedCoordinatesArray BYTE 34 DUP (0)
-ComputerCarrierShipArray BYTE 10 DUP (?)
-ComputerBattleShipShipArray BYTE 8 DUP (?)
-ComputerSubmarineShipArray BYTE 6 DUP (?)
-ComputerDestroyerShipArray BYTE 6 DUP (?)
-ComputerSweeperShipArray BYTE 4 DUP (?)
+ComputerCarrierShipArray BYTE 10 DUP (0)
+ComputerBattleShipShipArray BYTE 8 DUP (0)
+ComputerSubmarineShipArray BYTE 6 DUP (0)
+ComputerDestroyerShipArray BYTE 6 DUP (0)
+ComputerSweeperShipArray BYTE 4 DUP (0)
+
+;=====================
+;== Hit Registration =
+;=====================
+
+UnderScore BYTE "_", 0
+Hit BYTE 'X', 0
+Miss BYTE 'O', 0
 
 ;=====================
 ;=== UI MECHANICS ====
@@ -362,21 +374,21 @@ GenerateMaps PROC
 
 			; Missed Character
 
-			cmp al, 176
+			cmp al, 79
 			jne CheckPlayerHit
-			mov eax, blue
+			mov eax, lightGreen
 			call SetTextColor
-			mov eax, 176
+			mov eax, 79
 			call WriteChar
 			jmp FoundPlayerMapCharacter
 
 			CheckPlayerHit:
 
-			cmp al, 178
+			cmp al, 88
 			jne CheckCarrier
-			mov eax, red
+			mov eax, lightRed
 			call SetTextColor
-			mov eax, 178
+			mov eax, 88
 			call WriteChar
 			jmp FoundPlayerMapCharacter
 
@@ -475,21 +487,21 @@ GenerateMaps PROC
 
 			; Missed Character
 
-			cmp al, 176
+			cmp al, 79
 			jne CheckComputerHit
-			mov eax, blue
+			mov eax, lightGreen
 			call SetTextColor
-			mov eax, 176
+			mov eax, 79
 			call WriteChar
 			jmp FoundComputerMapCharacter
 
 			CheckComputerHit:
 
-			cmp al, 178
+			cmp al, 88
 			jne PrintComputerMapCharacter
-			mov eax, red
+			mov eax, lightRed
 			call SetTextColor
-			mov eax, 178
+			mov eax, 88
 			call WriteChar
 			jmp FoundComputerMapCharacter
 
@@ -837,6 +849,14 @@ PlacePlayerSweeper PROC
 	ret
 PlacePlayerSweeper ENDP
 
+;-----------------------------------------------------
+; PlaceComputerShips
+; Fills the computer ship arrays with coordinates that 
+; correspond with spots on the computer map.
+; (row, column, row, column, row, column....)
+; Returns: EAX = the random int
+;-----------------------------------------------------
+
 PlaceComputerShips PROC
 
 	call PlaceComputerCarrier
@@ -844,12 +864,16 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
+	call ComputerTurn
+	call ComputerTurn
+	call ComputerTurn
+	call ComputerTurn
+	call PrintComputerArrays
 
 	ret
 PlaceComputerShips ENDP
 
 PlaceComputerCarrier PROC
-
 	mov lowerbound, 1
 	mov upperbound, 2
 	call BetterRandomNumber
@@ -876,187 +900,158 @@ PlaceComputerCarrier PROC
 		dec ecx
 		call FillArrayVertically
 
-	
 	return:
-	mov esi, OFFSET ComputerCarrierShipArray
-	mov ecx, lengthof ComputerCarrierShipArray
-	
-	mov eax, 0
-	loopx:
-	mov al, [esi]
-	call Writeint
-	inc esi
-	loop loopx
-	call crlf
 	ret
 PlaceComputerCarrier ENDP
 
 PlaceComputerBattleship PROC
-	mov lowerbound, 1
-	mov upperbound, 2
-	call BetterRandomNumber
-	cmp al, 1
-	je vertical 
+	start: 
+		mov lowerbound, 1
+		mov upperbound, 2
+		call BetterRandomNumber
+		cmp al, 1
+		je vertical 
 
-	horizontal:
+		horizontal:
+			mov esi, OFFSET ComputerBattleshipShipArray
+			inc esi
+			mov bl, ComputerBattleShipHealth
+			call PlaceHorizontal
+
+			movzx ecx, ComputerBattleShipHealth
+			dec ecx
+			call FillArrayHorizontally
+			jmp return
+
+		vertical:
+			mov esi, OFFSET ComputerBattleshipShipArray
+			mov bl, ComputerBattleShipHealth
+			call PlaceVertical
+
+			movzx ecx, ComputerBattleShipHealth
+			dec ecx
+			call FillArrayVertically
+
+		return:
 		mov esi, OFFSET ComputerBattleshipShipArray
-		inc esi
-		mov bl, ComputerBattleShipHealth
-		call PlaceHorizontal
+		movzx ecx, ComputerBattleshipHealth
+		call checkrandplacementcollision
+		cmp matches, 1
+		jne start
 
-		movzx ecx, ComputerBattleShipHealth
-		dec ecx
-		call FillArrayHorizontally
-		jmp return
-
-	vertical:
-		mov esi, OFFSET ComputerBattleshipShipArray
-		mov bl, ComputerBattleShipHealth
-		call PlaceVertical
-
-		movzx ecx, ComputerBattleShipHealth
-		dec ecx
-		call FillArrayVertically
-
-	
-	return:
-	mov esi, OFFSET ComputerBattleshipShipArray
-	mov ecx, lengthof ComputerBattleshipShipArray
-	
-	mov eax, 0
-	loopx:
-	mov al, [esi]
-	call Writeint
-	inc esi
-	loop loopx
-	call crlf
 	ret
 PlaceComputerBattleship ENDP
 
 PlaceComputerSubmarine PROC
-	mov lowerbound, 1
-	mov upperbound, 2
-	call BetterRandomNumber
-	cmp al, 1
-	je vertical 
+	start:
+		mov lowerbound, 1
+		mov upperbound, 2
+		call BetterRandomNumber
+		cmp al, 1
+		je vertical 
 
-	horizontal:
-		mov esi, OFFSET ComputerSubmarineShipArray
-		inc esi
-		mov bl, ComputerSubmarineHealth
-		call PlaceHorizontal
+		horizontal:
+			mov esi, OFFSET ComputerSubmarineShipArray
+			inc esi
+			mov bl, ComputerSubmarineHealth
+			call PlaceHorizontal
 
-		movzx ecx, ComputerSubmarineHealth
-		dec ecx
-		call FillArrayHorizontally
-		jmp return
+			movzx ecx, ComputerSubmarineHealth
+			dec ecx
+			call FillArrayHorizontally
+			jmp return
 
-	vertical:
-		mov esi, OFFSET ComputerSubmarineShipArray
-		mov bl, ComputerSubmarineHealth
-		call PlaceVertical
+		vertical:
+			mov esi, OFFSET ComputerSubmarineShipArray
+			mov bl, ComputerSubmarineHealth
+			call PlaceVertical
 
-		movzx ecx, ComputerSubmarineHealth
-		dec ecx
-		call FillArrayVertically
+			movzx ecx, ComputerSubmarineHealth
+			dec ecx
+			call FillArrayVertically
 
-	
-	return:
-	mov esi, OFFSET ComputerSubmarineShipArray
-	mov ecx, lengthof ComputerSubmarineShipArray
-	
-	mov eax, 0
-	loopx:
-	mov al, [esi]
-	call Writeint
-	inc esi
-	loop loopx
-	call crlf
-	ret
+		return:
+			mov esi, OFFSET ComputerSubmarineShipArray
+			movzx ecx, ComputerSubmarineHealth
+			call CheckRandPlacementCollision
+			cmp matches, 1
+			jne start
+		ret
 PlaceComputerSubmarine ENDP
 
 PlaceComputerDestroyer PROC
-	mov lowerbound, 1
-	mov upperbound, 2
-	call BetterRandomNumber
-	cmp al, 1
-	je vertical 
+	start:
+		mov lowerbound, 1
+		mov upperbound, 2
+		call BetterRandomNumber
+		cmp al, 1
+		je vertical 
 
-	horizontal:
-		mov esi, OFFSET ComputerDestroyerShipArray
-		inc esi
-		mov bl, ComputerDestroyerHealth
-		call PlaceHorizontal
+		horizontal:
+			mov esi, OFFSET ComputerDestroyerShipArray
+			inc esi
+			mov bl, ComputerDestroyerHealth
+			call PlaceHorizontal
 
-		movzx ecx, ComputerDestroyerHealth
-		dec ecx
-		call FillArrayHorizontally
-		jmp return
+			movzx ecx, ComputerDestroyerHealth
+			dec ecx
+			call FillArrayHorizontally
+			jmp return
 
-	vertical:
-		mov esi, OFFSET ComputerDestroyerShipArray
-		mov bl, ComputerDestroyerHealth
-		call PlaceVertical
+		vertical:
+			mov esi, OFFSET ComputerDestroyerShipArray
+			mov bl, ComputerDestroyerHealth
+			call PlaceVertical
 
-		movzx ecx, ComputerDestroyerHealth
-		dec ecx
-		call FillArrayVertically
+			movzx ecx, ComputerDestroyerHealth
+			dec ecx
+			call FillArrayVertically
 
-	
-	return:
-	mov esi, OFFSET ComputerDestroyerShipArray
-	mov ecx, lengthof ComputerDestroyerShipArray
-	
-	mov eax, 0
-	loopx:
-	mov al, [esi]
-	call Writeint
-	inc esi
-	loop loopx
-	call crlf
+		return:
+			mov esi, OFFSET ComputerDestroyerShipArray
+			movzx ecx, ComputerDestroyerHealth
+			call CheckRandPlacementCollision
+			cmp matches, 1
+			jne start
 	ret
 PlaceComputerDestroyer ENDP
 
 PlaceComputerSweeper PROC
-	mov lowerbound, 1
-	mov upperbound, 2
-	call BetterRandomNumber
-	cmp al, 1
-	je vertical 
+	start:
+		mov lowerbound, 1
+		mov upperbound, 2
+		call BetterRandomNumber
+		cmp al, 1
+		je vertical 
 
-	horizontal:
-		mov esi, OFFSET ComputerSweeperShipArray
-		inc esi
-		mov bl, ComputerSweeperHealth
-		call PlaceHorizontal
+		horizontal:
+			mov esi, OFFSET ComputerSweeperShipArray
+			inc esi
+			mov bl, ComputerSweeperHealth
+			call PlaceHorizontal
 
-		movzx ecx, ComputerSweeperHealth
-		dec ecx
-		call FillArrayHorizontally
-		jmp return
+			movzx ecx, ComputerSweeperHealth
+			dec ecx
+			call FillArrayHorizontally
+			jmp return
 
-	vertical:
-		mov esi, OFFSET ComputerSweeperShipArray
-		mov bl, ComputerSweeperHealth
-		call PlaceVertical
+		vertical:
+			mov esi, OFFSET ComputerSweeperShipArray
+			mov bl, ComputerSweeperHealth
+			call PlaceVertical
 
-		movzx ecx, ComputerSweeperHealth
-		dec ecx
-		call FillArrayVertically
+			movzx ecx, ComputerSweeperHealth
+			dec ecx
+			call FillArrayVertically
 
-	
-	return:
-	mov esi, OFFSET ComputerSweeperShipArray
-	mov ecx, lengthof ComputerSweeperShipArray
-	
-	mov eax, 0
-	loopx:
-	mov al, [esi]
-	call Writeint
-	inc esi
-	loop loopx
-	call crlf
-	ret
+		return:
+
+			mov esi, OFFSET ComputerSweeperShipArray
+			movzx ecx, ComputerSweeperHealth
+			call CheckRandPlacementCollision
+			cmp matches, 0
+			jne start
+		ret
 PlaceComputerSweeper ENDP
 
 PlaceHorizontal PROC
@@ -1139,9 +1134,80 @@ mov dl, currentCol
 
 ret
 FillArrayHorizontally ENDP
+
 CheckRandPlacementCollision PROC
+	mov matches, 0
+	mov ebx, esi
+	mov edx, ecx
+
+	mov CurrentShipLocation, OFFSET ComputerCarrierShipArray
+	movzx eax, ComputerCarrierHealth
+	mov CurrentShipHealth, al
+	call CheckShipCollision
+	add matches, al
+
+	mov esi, ebx
+	mov ecx, edx
+	mov CurrentShipLocation, OFFSET ComputerBattleshipShipArray
+	movzx eax, ComputerBattleshipHealth
+	mov CurrentShipHealth, al
+	call CheckShipCollision
+	add matches, al
+
+	mov esi, ebx
+	mov ecx, edx
+	mov CurrentShipLocation, OFFSET ComputerSubmarineShipArray
+	movzx eax, ComputerSubmarineHealth
+	mov CurrentShipHealth, al
+	call CheckShipCollision
+	add matches, al
+
+
+	mov esi, ebx
+	mov ecx, edx
+	mov CurrentShipLocation, OFFSET ComputerDestroyerShipArray
+	movzx eax, ComputerDestroyerHealth
+	mov CurrentShipHealth, al
+	call CheckShipCollision
+	add matches, al
+
+	return:
+
 ret 
 CheckRandPlacementCollision ENDP
+
+CheckShipCollision PROC uses EBX EDX
+	mov al, 0
+	LoopOuter:
+		mov bh, [esi]
+		inc esi
+		mov bl, [esi]
+		inc esi
+		push ecx
+		mov edi, currentshiplocation
+		movzx ecx, currentshiphealth
+		LoopInner:
+			mov dh, [edi]
+			inc edi
+			mov dl, [edi]
+			inc edi
+			cmp dh, bh
+			jne next
+			cmp dl, bl
+			jne next
+			inc al
+
+			next:
+			loop LoopInner
+		pop ecx
+		cmp al, 1
+		je return
+		loop LoopOuter
+
+	    return:
+ret
+CheckShipCollision ENDP
+
 ;-----------------------------------------------------
 ; BetterRandomNumber
 ; produces a random int with lower and upper bound
@@ -1163,6 +1229,7 @@ BetterRandomNumber endp
 ;-----------------------------------------------------
 ; BetterRandomOdd
 ; produces a random odd int with lower and upper bound
+; (Column coordinates are only odd numbers)
 ; Receives: upperbound, lowerbound
 ; Returns: EAX = the random int
 ;-----------------------------------------------------
@@ -1195,5 +1262,84 @@ BetterRandomOdd proc
 ret
 BetterRandomOdd endp
 
+PrintComputerArrays PROC
 
+mov esi, OFFSET ComputerCarrierShipArray
+mov ecx, lengthof ComputerCarrierShipArray
+call PrintArray
+
+mov esi, OFFSET ComputerBattleshipShipArray
+mov ecx, lengthof ComputerBattleShipShipArray
+call PrintArray
+
+mov esi, OFFSET ComputerSubmarineShipArray
+mov ecx, lengthof ComputerSubmarineShipArray
+call PrintArray
+
+mov esi, OFFSET ComputerDestroyerShipArray
+mov ecx, lengthof ComputerDestroyerShipArray
+call PrintArray
+
+mov esi, OFFSET ComputerSweeperShipArray
+mov ecx, lengthof ComputerSweeperShipArray
+call PrintArray
+ret
+PrintComputerArrays ENDP
+
+PrintArray PROC
+
+	mov eax, 0
+	loopx:
+	mov al, [esi]
+	call Writeint
+	inc esi
+	loop loopx
+	call crlf
+
+ret
+PrintArray ENDP
+
+PlayerTurn PROC
+call GetMouseCoordinates
+
+ret 
+PlayerTurn ENDP
+
+ComputerTurn PROC
+start:
+	mov lowerbound, 6
+	mov upperbound, 15
+	call BetterRandomNumber
+	mov rowCoordinate, ax
+	mov lowerbound, 23
+	mov upperbound, 41
+	call BetterRandomOdd
+	mov columnCoordinate, ax
+
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+	mov al, [edi]
+
+	mov esi, OFFSET Underscore
+	mov al, [esi]
+	cmp [edi], al
+	je cMiss
+
+	cHit:
+		mov al, 88
+		mov [edi], al
+		jmp redraw
+
+	cMiss:
+		mov al, 79
+		mov [edi], al
+
+	redraw:
+		call GenerateMaps
+		call GenerateUIMechanics
+	ret
+ComputerTurn ENDP
 END main
