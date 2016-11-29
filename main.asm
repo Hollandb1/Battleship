@@ -811,8 +811,11 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
-	call PrintComputerArrays
 	call ComputerTurn
+	call ComputerTurn
+	call ComputerTurn
+	call ComputerTurn
+	call PrintComputerArrays
 
 	ret
 PlaceComputerShips ENDP
@@ -1248,45 +1251,42 @@ call GetMouseCoordinates
 
 ret 
 PlayerTurn ENDP
+
 ComputerTurn PROC
+start:
+	mov lowerbound, 6
+	mov upperbound, 15
+	call BetterRandomNumber
+	mov rowCoordinate, ax
+	mov lowerbound, 23
+	mov upperbound, 41
+	call BetterRandomOdd
+	mov columnCoordinate, ax
 
-mov lowerbound, 6
-mov upperbound, 15
-call BetterRandomNumber
-mov rowCoordinate, ax
-mov lowerbound, 23
-mov upperbound, 41
-call BetterRandomOdd
-mov columnCoordinate, ax
-call TranslateRowCoordinate
-call TranslateColumnCoordinate
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
 
-mov edi, OFFSET PlayerMap
-add edi, mapIndex
-mov al, [edi]
-call writechar
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+	mov al, [edi]
 
-mov esi, OFFSET Underscore
-mov al, [esi]
-call writechar
-cmp [edi], al
-je cMiss
+	mov esi, OFFSET Underscore
+	mov al, [esi]
+	cmp [edi], al
+	je cMiss
 
-cHit:
+	cHit:
+		mov al, 88
+		mov [edi], al
+		jmp redraw
 
-mov al, 88
-mov [edi], al
-jmp redraw
+	cMiss:
+		mov al, 79
+		mov [edi], al
 
-cMiss:
-
-mov al, 79
-mov [edi], al
-
-redraw:
-call GenerateMaps
-call GenerateUIMechanics
-
-ret
+	redraw:
+		call GenerateMaps
+		call GenerateUIMechanics
+	ret
 ComputerTurn ENDP
 END main
