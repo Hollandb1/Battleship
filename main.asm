@@ -87,6 +87,14 @@ ComputerDestroyerShipArray BYTE 6 DUP (0)
 ComputerSweeperShipArray BYTE 4 DUP (0)
 
 ;=====================
+;== Hit Registration =
+;=====================
+
+UnderScore BYTE "_", 0
+Hit BYTE 'X', 0
+Miss BYTE 'O', 0
+
+;=====================
 ;=== UI MECHANICS ====
 ;=====================
 
@@ -317,21 +325,21 @@ GenerateMaps PROC
 
 			; Missed Character
 
-			cmp al, 176
+			cmp al, 79
 			jne CheckPlayerHit
-			mov eax, blue
+			mov eax, lightGreen
 			call SetTextColor
-			mov eax, 176
+			mov eax, 79
 			call WriteChar
 			jmp FoundPlayerMapCharacter
 
 			CheckPlayerHit:
 
-			cmp al, 178
+			cmp al, 88
 			jne CheckCarrier
-			mov eax, red
+			mov eax, lightRed
 			call SetTextColor
-			mov eax, 178
+			mov eax, 88
 			call WriteChar
 			jmp FoundPlayerMapCharacter
 
@@ -430,21 +438,21 @@ GenerateMaps PROC
 
 			; Missed Character
 
-			cmp al, 176
+			cmp al, 79
 			jne CheckComputerHit
-			mov eax, blue
+			mov eax, lightGreen
 			call SetTextColor
-			mov eax, 176
+			mov eax, 79
 			call WriteChar
 			jmp FoundComputerMapCharacter
 
 			CheckComputerHit:
 
-			cmp al, 178
+			cmp al, 88
 			jne PrintComputerMapCharacter
-			mov eax, red
+			mov eax, lightRed
 			call SetTextColor
-			mov eax, 178
+			mov eax, 88
 			call WriteChar
 			jmp FoundComputerMapCharacter
 
@@ -804,6 +812,7 @@ PlaceComputerShips PROC
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
 	call PrintComputerArrays
+	call ComputerTurn
 
 	ret
 PlaceComputerShips ENDP
@@ -1233,4 +1242,51 @@ PrintArray PROC
 
 ret
 PrintArray ENDP
+
+PlayerTurn PROC
+call GetMouseCoordinates
+
+ret 
+PlayerTurn ENDP
+ComputerTurn PROC
+
+mov lowerbound, 6
+mov upperbound, 15
+call BetterRandomNumber
+mov rowCoordinate, ax
+mov lowerbound, 23
+mov upperbound, 41
+call BetterRandomOdd
+mov columnCoordinate, ax
+call TranslateRowCoordinate
+call TranslateColumnCoordinate
+
+mov edi, OFFSET PlayerMap
+add edi, mapIndex
+mov al, [edi]
+call writechar
+
+mov esi, OFFSET Underscore
+mov al, [esi]
+call writechar
+cmp [edi], al
+je cMiss
+
+cHit:
+
+mov al, 88
+mov [edi], al
+jmp redraw
+
+cMiss:
+
+mov al, 79
+mov [edi], al
+
+redraw:
+call GenerateMaps
+call GenerateUIMechanics
+
+ret
+ComputerTurn ENDP
 END main
