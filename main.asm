@@ -43,6 +43,8 @@ PlayerSubmarineHealth BYTE 3		; U
 PlayerDestroyerHealth BYTE 3		; D
 PlayerSweeperHealth BYTE 2			; S
 
+ShipsPlaced BYTE 0					; Increments every time a ship is placed
+
 ;=====================
 ;=== COMPUTER MAP ====
 ;=====================
@@ -123,17 +125,18 @@ main PROC
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
+
+	mov edx, OFFSET ShipPlacementTitle
+	call WriteString
+	call Crlf
+
 	call PlacePlayerShips
 	call PlaceComputerShips
 
-	mov ecx, 100 ; Maximum amount of turns on 10x10 map
-
 	TurnRotation:
 
-	push ecx
-	;call PlayerTurn
-	;call ComputerTurn
-	pop ecx
+	call PlayerTurn
+	call ComputerTurn
 
 	mov eax, 0
 
@@ -143,6 +146,8 @@ main PROC
 	cmp al, PlayerHealth
 	je ComputerWin
 
+	jmp AnotherTurn
+
 	PlayerWin:
 
 	INVOKE ExitProcess, 0
@@ -151,7 +156,9 @@ main PROC
 
 	INVOKE ExitProcess, 0
 
-	loop TurnRotation
+	AnotherTurn:
+
+	jmp TurnRotation
 
 INVOKE ExitProcess, 0
 main ENDP
@@ -221,6 +228,14 @@ GetMouseCoordinates PROC
 	HandleLeftClick:
 
 	mov ax, InputRecord.MouseEvent.dwMousePosition.X
+
+	mov dx, 0
+	mov bx, 2
+	div bx
+	cmp dx, 0
+	je skip
+
+	mov ax, InputRecord.MouseEvent.dwMousePosition.X
 	mov bx, InputRecord.MouseEvent.dwMousePosition.Y
 
 	mov mouseClickDirection, 1
@@ -230,6 +245,14 @@ GetMouseCoordinates PROC
 	jmp Complete
 	
 	HandleRightClick:
+
+	mov ax, InputRecord.MouseEvent.dwMousePosition.X
+
+	mov dx, 0
+	mov bx, 2
+	div bx
+	cmp dx, 0
+	je skip
 
 	mov ax, InputRecord.MouseEvent.dwMousePosition.X
 	mov bx, InputRecord.MouseEvent.dwMousePosition.Y
@@ -252,9 +275,6 @@ GetMouseCoordinates ENDP
 
 TranslateRowCoordinate PROC
 
-	mov ax, rowCoordinate
-	call WriteInt
-
 	mov eax, 0
 	mov eax, 25	; A1 in Map
 	mov bx, 6	; Starting X-Row coordinate in console
@@ -271,15 +291,11 @@ TranslateRowCoordinate PROC
 	RowFound:
 
 	mov mapIndex, eax
-	call WriteInt
 
 	ret
 TranslateRowCoordinate ENDP
 
 TranslateColumnCoordinate PROC
-
-	mov ax, columnCoordinate
-	call WriteInt
 
 	mov eax, mapIndex	; Starting from where we are in the row of the map
 	;call WriteInt
@@ -298,7 +314,6 @@ TranslateColumnCoordinate PROC
 	ColumnFound:
 
 	mov mapIndex, eax
-	call WriteInt
 
 	ret
 TranslateColumnCoordinate ENDP
@@ -554,6 +569,8 @@ GenerateUIMechanics PROC
 
 	mov edx, OFFSET TotalHealthText
 	call WriteString
+	mov al, PlayerHealth
+	call WriteDec
 
 	mov dl, 60
 	mov dh, 20
@@ -561,6 +578,8 @@ GenerateUIMechanics PROC
 
 	mov edx, OFFSET TotalHealthText
 	call WriteString
+	mov al, ComputerHealth
+	call WriteDec
 
 	mov dl, 17
 	mov dh, 21
@@ -568,6 +587,7 @@ GenerateUIMechanics PROC
 
 	mov edx, OFFSET ShipsRemainingText
 	call WriteString
+	call CalculatePlayerShipsRemaining
 
 	mov dl, 57
 	mov dh, 21
@@ -575,6 +595,7 @@ GenerateUIMechanics PROC
 
 	mov edx, OFFSET ShipsRemainingText
 	call WriteString
+	call CalculateComputerShipsRemaining
 
 	mov dl, 0
 	mov dh, 0
@@ -583,17 +604,197 @@ GenerateUIMechanics PROC
 	ret
 GenerateUIMechanics ENDP
 
+CalculatePlayerShipsRemaining PROC
+
+	mov ebx, 0
+
+	mov al, PlayerCarrierHealth
+	cmp al, 0
+	je PBH
+	inc ebx
+
+	PBH:
+
+	mov al, PlayerBattleshipHealth
+	cmp al, 0
+	je PUH
+	inc ebx
+
+	PUH:
+
+	mov al, PlayerBattleshipHealth
+	cmp al, 0
+	je PDH
+	inc ebx
+
+	PDH:
+
+	mov al, PlayerBattleshipHealth
+	cmp al, 0
+	je PSH
+	inc ebx
+
+	PSH:
+
+	mov al, PlayerSweeperHealth
+	cmp al, 0
+	je PSRC
+	inc ebx
+
+	PSRC:
+
+	cmp ebx, 1
+	jg PSRYellow
+	
+	mov eax, red
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	jmp PSComplete
+
+	PSRYellow:
+
+	cmp ebx, 3
+	jg PSRGreen
+
+	mov eax, yellow
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	jmp PSComplete
+
+	PSRGreen:
+
+	mov eax, green
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	
+	PSComplete:
+
+	mov eax, white
+	call SetTextColor
+
+	ret
+CalculatePlayerShipsRemaining ENDP
+
+CalculateComputerShipsRemaining PROC
+
+	mov ebx, 0
+
+	mov al, ComputerCarrierHealth
+	cmp al, 0
+	je CBH
+	inc ebx
+
+	CBH:
+
+	mov al, ComputerBattleshipHealth
+	cmp al, 0
+	je CUH
+	inc ebx
+
+	CUH:
+
+	mov al, ComputerBattleshipHealth
+	cmp al, 0
+	je CDH
+	inc ebx
+
+	CDH:
+
+	mov al, ComputerBattleshipHealth
+	cmp al, 0
+	je CSH
+	inc ebx
+
+	CSH:
+
+	mov al, ComputerSweeperHealth
+	cmp al, 0
+	je CSRC
+	inc ebx
+
+	CSRC:
+
+	cmp ebx, 1
+	jg CSRYellow
+	
+	mov eax, red
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	jmp CSComplete
+
+	CSRYellow:
+
+	cmp ebx, 3
+	jg CSRGreen
+
+	mov eax, yellow
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	jmp CSComplete
+
+	CSRGreen:
+
+	mov eax, green
+	call SetTextColor
+	mov eax, ebx
+	call WriteDec
+	
+	CSComplete:
+
+	mov eax, white
+	call SetTextColor
+
+	ret
+CalculateComputerShipsRemaining ENDP
+
 PlacePlayerShips PROC
 
-	mov edx, OFFSET ShipPlacementTitle
-	call WriteString
-	call Crlf
+	mov eax, 0
+
+	mov al, ShipsPlaced
+
+	cmp al, 0
+	je PlaceCarrier
+
+	cmp al, 1
+	je PlaceBattleship
+
+	cmp al, 2
+	je PlaceSubmarine
+
+	cmp al, 3
+	je PlaceDestroyer
+
+	cmp al, 4
+	je PlaceSweeper
+	jge AllShipsPlaced
+
+	PlaceCarrier:
 
 	call PlacePlayerCarrier
+
+	PlaceBattleship:
+
 	call PlacePlayerBattleship
+
+	PlaceSubmarine:
+
 	call PlacePlayerSubmarine
+
+	PlaceDestroyer:
+
 	call PlacePlayerDestroyer
+
+	PlaceSweeper:
+
 	call PlacePlayerSweeper
+
+	AllShipsPlaced:
 
 	ret
 PlacePlayerShips ENDP
@@ -645,6 +846,12 @@ PlacePlayerCarrier PROC
 	call GenerateMaps
 	call GenerateUIMechanics
 
+	mov eax, 0
+
+	mov al, ShipsPlaced
+	inc al
+	mov ShipsPlaced, al
+
 	ret
 PlacePlayerCarrier ENDP
 
@@ -662,10 +869,14 @@ PlacePlayerBattleship PROC
 
 	VerticalBattleshipPlacement:
 
+	mov eax, 4
+	call CheckVerticalShipPlacementCollision
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
 	mov ecx, 4
+	
 	PVB:
 
 		mov al, 66
@@ -678,10 +889,14 @@ PlacePlayerBattleship PROC
 
 	HorizontalBattleshipPlacement:
 
+	mov eax, 4
+	call CheckHorizontalShipPlacementCollision
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
 	mov ecx, 4
+
 	PHB:
 
 		mov al, 66
@@ -694,6 +909,12 @@ PlacePlayerBattleship PROC
 
 	call GenerateMaps
 	call GenerateUIMechanics
+
+	mov eax, 0
+
+	mov al, ShipsPlaced
+	inc al
+	mov ShipsPlaced, al
 
 	ret
 PlacePlayerBattleship ENDP
@@ -712,6 +933,9 @@ PlacePlayerSubmarine PROC
 
 	VerticalSubmarinePlacement:
 
+	mov eax, 3
+	call CheckVerticalShipPlacementCollision
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -727,6 +951,9 @@ PlacePlayerSubmarine PROC
 	jmp SubmarinePlaced
 
 	HorizontalSubmarinePlacement:
+
+	mov eax, 3
+	call CheckHorizontalShipPlacementCollision
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -746,6 +973,12 @@ PlacePlayerSubmarine PROC
 	call GenerateMaps
 	call GenerateUIMechanics
 
+	mov eax, 0
+
+	mov al, ShipsPlaced
+	inc al
+	mov ShipsPlaced, al
+
 	ret
 PlacePlayerSubmarine ENDP
 
@@ -763,6 +996,9 @@ PlacePlayerDestroyer PROC
 
 	VerticalDestroyerPlacement:
 
+	mov eax, 3
+	call CheckVerticalShipPlacementCollision
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -778,6 +1014,9 @@ PlacePlayerDestroyer PROC
 	jmp DestroyerPlaced
 
 	HorizontalDestroyerPlacement:
+
+	mov eax, 3
+	call CheckHorizontalShipPlacementCollision
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -796,6 +1035,12 @@ PlacePlayerDestroyer PROC
 	call GenerateMaps
 	call GenerateUIMechanics
 
+	mov eax, 0
+
+	mov al, ShipsPlaced
+	inc al
+	mov ShipsPlaced, al
+
 	ret
 PlacePlayerDestroyer ENDP
 
@@ -813,6 +1058,9 @@ PlacePlayerSweeper PROC
 
 	VerticalSweeperPlacement:
 
+	mov eax, 2
+	call CheckVerticalShipPlacementCollision
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -828,6 +1076,9 @@ PlacePlayerSweeper PROC
 	jmp SweeperPlaced
 
 	HorizontalSweeperPlacement:
+
+	mov eax, 2
+	call CheckHorizontalShipPlacementCollision
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -846,8 +1097,103 @@ PlacePlayerSweeper PROC
 	call GenerateMaps
 	call GenerateUIMechanics
 
+	mov eax, 0
+
+	mov al, 5
+	mov ShipsPlaced, 5
+
 	ret
 PlacePlayerSweeper ENDP
+
+.data
+
+ShipPlacementErrorMessage BYTE "Error: Ships cannot overlap. Please try again.", 0
+
+.code
+
+CheckVerticalShipPlacementCollision PROC
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, eax
+
+	mov ah, 95
+
+	CheckV:
+
+		cmp [edi], ah
+		je N
+
+		jne ShipPlacementErrorVertical
+
+		N:
+
+		add edi, 22
+		dec ecx
+
+	cmp ecx, 0
+	jne CheckV
+
+	jmp ValidVerticalPlacement
+
+	ShipPlacementErrorVertical:
+
+	mov edx, OFFSET ShipPlacementErrorMessage
+	call WriteString
+
+	mov al, ShipsPlaced
+	cmp al, 5
+	jge ValidVerticalPlacement
+
+	call PlacePlayerShips
+
+	ValidVerticalPlacement:
+
+	ret
+CheckVerticalShipPlacementCollision ENDP
+
+CheckHorizontalShipPlacementCollision PROC
+
+	mov edi, OFFSET PlayerMap
+	add edi, mapIndex
+
+	mov ecx, eax
+
+	mov ah, 95
+
+	CheckH:
+
+		cmp [edi], ah
+		je N
+
+		jne ShipPlacementErrorHorizontal
+
+		N:
+
+		add edi, 2
+		dec ecx
+
+	cmp ecx, 0
+	jne CheckH
+
+	jmp ValidHorizontalPlacement
+
+	ShipPlacementErrorHorizontal:
+
+	mov edx, OFFSET ShipPlacementErrorMessage
+	call WriteString
+
+	mov al, ShipsPlaced
+	cmp al, 5
+	jge ValidHorizontalPlacement
+
+	call PlacePlayerShips
+
+	ValidHorizontalPlacement:
+
+	ret
+CheckHorizontalShipPlacementCollision ENDP
 
 ;-----------------------------------------------------
 ; PlaceComputerShips
@@ -864,10 +1210,6 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
-	call ComputerTurn
-	call ComputerTurn
-	call ComputerTurn
-	call ComputerTurn
 	call PrintComputerArrays
 
 	ret
@@ -1300,16 +1642,283 @@ ret
 PrintArray ENDP
 
 PlayerTurn PROC
-call GetMouseCoordinates
 
-ret 
+	call GetMouseCoordinates
+	call TranslateRowCoordinate
+	call TranslateColumnCoordinate
+	
+	call CheckPlayerAttack
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret 
 PlayerTurn ENDP
+
+.data
+
+FoundRowMessage BYTE "Found Row of Player Attack!", 0
+PlayerHitMessage BYTE "Player has Hit!", 0
+
+.code
+
+CheckPlayerAttack PROC
+
+	mov ax, rowCoordinate
+	mov bx, columnCoordinate
+
+	mov esi, OFFSET ComputerCarrierShipArray
+
+	mov ecx, 5
+
+	CarrierHitDetection:
+
+		cmp [esi], al
+		je CheckCarrierColumn
+		jne NextCarrierPlace
+
+		CheckCarrierColumn:
+
+		mov edx, OFFSET FoundRowMessage
+		call WriteString
+
+		inc esi
+		cmp [esi], bl
+		je PlayerCarrierHit
+
+		dec esi
+		jmp NextCarrierPlace
+
+		PlayerCarrierHit:
+
+		mov edx, OFFSET PlayerHitMessage
+		call WriteString
+
+		jmp ShipAttacked
+
+		NextCarrierPlace:
+
+		dec ecx
+
+		cmp ecx, 0
+		je CheckBattleshipAttack
+
+		add esi, 2
+
+	jmp CarrierHitDetection
+
+	CheckBattleshipAttack:
+
+	mov esi, OFFSET ComputerBattleshipShipArray
+
+	mov ecx, 4
+
+	BattleshipHitDetection:
+
+		cmp [esi], al
+		je CheckBattleshipColumn
+		jne NextBattleshipPlace
+
+		CheckBattleshipColumn:
+
+		mov edx, OFFSET FoundRowMessage
+		call WriteString
+
+		inc esi
+		cmp [esi], bl
+		je PlayerBattleshipHit
+
+		dec esi
+		jmp NextBattleshipPlace
+
+		PlayerBattleshipHit:
+
+		mov edx, OFFSET PlayerHitMessage
+		call WriteString
+
+		jmp ShipAttacked
+
+		NextBattleshipPlace:
+
+		dec ecx
+
+		cmp ecx, 0
+		je CheckSubmarineAttack
+
+		add esi, 2
+
+	jmp BattleshipHitDetection
+
+	CheckSubmarineAttack:
+
+	mov esi, OFFSET ComputerSubmarineShipArray
+
+	mov ecx, 3
+
+	SubmarineHitDetection:
+
+		cmp [esi], al
+		je CheckSubmarineColumn
+		jne NextSubmarinePlace
+
+		CheckSubmarineColumn:
+
+		mov edx, OFFSET FoundRowMessage
+		call WriteString
+
+		inc esi
+		cmp [esi], bl
+		je PlayerSubmarineHit
+
+		dec esi
+		jmp NextSubmarinePlace
+
+		PlayerSubmarineHit:
+
+		mov edx, OFFSET PlayerHitMessage
+		call WriteString
+
+		jmp ShipAttacked
+
+		NextSubmarinePlace:
+
+		dec ecx
+
+		cmp ecx, 0
+		je CheckDestroyerAttack
+
+		add esi, 2
+
+	jmp SubmarineHitDetection
+
+	CheckDestroyerAttack:
+
+	mov esi, OFFSET ComputerDestroyerShipArray
+
+	mov ecx, 3
+
+	DestroyerHitDetection:
+
+		cmp [esi], al
+		je CheckDestroyerColumn
+		jne NextDestroyerPlace
+
+		CheckDestroyerColumn:
+
+		mov edx, OFFSET FoundRowMessage
+		call WriteString
+
+		inc esi
+		cmp [esi], bl
+		je PlayerDestroyerHit
+
+		dec esi
+		jmp NextDestroyerPlace
+
+		PlayerDestroyerHit:
+
+		mov edx, OFFSET PlayerHitMessage
+		call WriteString
+
+		jmp ShipAttacked
+
+		NextDestroyerPlace:
+
+		dec ecx
+
+		cmp ecx, 0
+		je CheckSweeperAttack
+
+		add esi, 2
+
+	jmp DestroyerHitDetection
+
+	CheckSweeperAttack:
+
+	mov esi, OFFSET ComputerSweeperShipArray
+
+	mov ecx, 2
+
+	SweeperHitDetection:
+
+		cmp [esi], al
+		je CheckSweeperColumn
+		jne NextSweeperPlace
+
+		CheckSweeperColumn:
+
+		mov edx, OFFSET FoundRowMessage
+		call WriteString
+
+		inc esi
+		cmp [esi], bl
+		je PlayerSweeperHit
+
+		dec esi
+		jmp NextSweeperPlace
+
+		PlayerSweeperHit:
+
+		mov edx, OFFSET PlayerHitMessage
+		call WriteString
+
+		jmp ShipAttacked
+
+		NextSweeperPlace:
+
+		dec ecx
+
+		cmp ecx, 0
+		je ShipAvoided
+
+		add esi, 2
+
+	jmp SweeperHitDetection
+
+	ShipAttacked:
+	call RegisterPlayerHit
+
+	jmp PlayerAttackComplete
+
+	ShipAvoided:
+	call RegisterPlayerMiss
+
+	PlayerAttackComplete:
+	
+	ret
+CheckPlayerAttack ENDP
+
+RegisterPlayerHit PROC
+
+	mov edi, OFFSET ComputerMapViewable
+	add edi, mapIndex
+	sub edi, 40
+
+	mov bl, 88
+
+	mov [edi], bl
+
+	ret
+RegisterPlayerHit ENDP
+
+RegisterPlayerMiss PROC
+	
+	mov edi, OFFSET ComputerMapViewable
+	add edi, mapIndex
+	sub edi, 40
+	
+	mov bl, 79
+
+	mov [edi], bl
+
+	ret
+RegisterPlayerMiss ENDP
 
 ComputerTurn PROC
 start:
 	mov lowerbound, 6
 	mov upperbound, 15
-	call BetterRandomNumber
+	call BetterRandomNumber 
 	mov rowCoordinate, ax
 	mov lowerbound, 23
 	mov upperbound, 41
@@ -1328,7 +1937,20 @@ start:
 	cmp [edi], al
 	je cMiss
 
+	mov esi, OFFSET Miss
+	mov al, [esi]
+	cmp [edi], al
+	je cMiss
+
+	mov esi, OFFSET Hit
+	mov al, [esi]
+	cmp [edi], al
+	je redraw
+	
 	cHit:
+		
+		call CheckComputerTurnHit
+
 		mov al, 88
 		mov [edi], al
 		jmp redraw
@@ -1342,4 +1964,65 @@ start:
 		call GenerateUIMechanics
 	ret
 ComputerTurn ENDP
+
+CheckComputerTurnHit PROC
+
+	mov bl, 66
+	cmp [edi], bl
+	je PlayerBHit
+
+	mov bl, 67
+	cmp [edi], bl
+	je PlayerCHit
+
+	mov bl, 68
+	cmp [edi], bl
+	je PlayerDHit
+
+	mov bl, 83
+	cmp [edi], bl
+	je PlayerUHit
+
+	mov al, PlayerSweeperHealth
+	dec al
+	mov PlayerSweeperHealth, al
+	jmp HealthAdjusted
+	
+	PlayerBHit:
+
+	mov al, PlayerBattleshipHealth
+	dec al
+	mov PlayerBattleshipHealth, al
+	jmp HealthAdjusted
+
+	PlayerCHit:
+
+	mov al, PlayerCarrierHealth
+	dec al
+	mov PlayerCarrierHealth, al
+	jmp HealthAdjusted
+
+	PlayerDHit:
+
+	mov al, PlayerDestroyerHealth
+	dec al
+	mov PlayerDestroyerHealth, al
+	jmp HealthAdjusted
+
+	PlayerUHit:
+
+	mov al, PlayerSubmarineHealth
+	dec al
+	mov PlayerSubmarineHealth, al
+	jmp HealthAdjusted
+
+	HealthAdjusted:
+
+	mov al, PlayerHealth
+	dec al
+	mov PlayerHealth, al
+
+	ret
+CheckComputerTurnHit ENDP
+
 END main
