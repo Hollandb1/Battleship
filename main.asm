@@ -2205,12 +2205,6 @@ CheckComputerTurnHit PROC
 CheckComputerTurnHit ENDP
 SaveHitInfo PROC
 
-	call crlf
-	movzx eax, rowcoordinate
-	call writeint
-	movzx eax, columncoordinate
-	call writeint
-	call crlf
 	mov LastTurnOutcome, 2
 	movzx eax, RowCoordinate
 	movzx ebx, ColumnCoordinate
