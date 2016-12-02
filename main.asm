@@ -118,6 +118,17 @@ ShipsRemainingText BYTE "Ships Remaining: ", 0
 PlayerTurnMessage BYTE "Your turn has resulted in a: ", 0
 ComputerMoveMessage BYTE "The computer's turn has resulted in a: ", 0
 
+;=====================
+;=== Computer Turn ===
+;=====================
+
+InitialHit BYTE 2 DUP (?)		;Coordinates of initial hit
+LastHit BYTE 2 DUP (0)			;Coordinates of last hit
+LastTurnOutcome BYTE 0			;0 miss, 1 initial hit, 2 hit streak
+CurrentDirection BYTE ?
+ComputerTarget BYTE ?
+HitStreak BYTE 0
+
 .code
 main PROC
 
@@ -1210,7 +1221,7 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
-	call PrintComputerArrays
+	;call PrintComputerArrays
 
 	ret
 PlaceComputerShips ENDP
@@ -1915,57 +1926,210 @@ RegisterPlayerMiss PROC
 RegisterPlayerMiss ENDP
 
 ComputerTurn PROC
-start:
-	mov lowerbound, 6
-	mov upperbound, 15
-	call BetterRandomNumber 
-	mov rowCoordinate, ax
-	mov lowerbound, 23
-	mov upperbound, 41
-	call BetterRandomOdd
-	mov columnCoordinate, ax
+movzx eax, LastTurnOutcome
 
-	call TranslateRowCoordinate
-	call TranslateColumnCoordinate
+	start:
+		cmp HitStreak, 0
+		je RandomTurn
 
-	mov edi, OFFSET PlayerMap
-	add edi, mapIndex
-	mov al, [edi]
+		call SmartComputerTurn
+		cmp HitStreak, 0
+		je RandomTurn
 
-	mov esi, OFFSET Underscore
-	mov al, [esi]
-	cmp [edi], al
-	je cMiss
+		jmp Continue
 
-	mov esi, OFFSET Miss
-	mov al, [esi]
-	cmp [edi], al
-	je cMiss
+		RandomTurn:
+			mov HitStreak, 0
+			mov lowerbound, 6
+			mov upperbound, 15
+			call BetterRandomNumber 
+			mov rowCoordinate, ax
+			mov lowerbound, 23
+			mov upperbound, 41
+			call BetterRandomOdd
+			mov columnCoordinate, ax
 
-	mov esi, OFFSET Hit
-	mov al, [esi]
-	cmp [edi], al
-	je redraw
-	
-	cHit:
-		
-		call CheckComputerTurnHit
+		Continue:
+			call TranslateRowCoordinate
+			call TranslateColumnCoordinate
 
-		mov al, 88
-		mov [edi], al
-		jmp redraw
+			mov edi, OFFSET PlayerMap
+			add edi, mapIndex
 
-	cMiss:
-		mov al, 79
-		mov [edi], al
+			mov esi, OFFSET Underscore
+			mov al, [esi]
+			cmp al, [edi]
+			je cMiss
 
-	redraw:
-		call GenerateMaps
-		call GenerateUIMechanics
-	ret
+			mov esi, OFFSET Miss
+			mov al, [esi]
+			cmp al, [edi]
+			je RandomTurn
+
+			mov esi, OFFSET Hit
+			mov al, [esi]
+			cmp al, [edi]
+			je RandomTurn
+			
+			cHit:
+				mov al, HitStreak					;hit counter
+				inc al
+				mov HitStreak, al
+				
+				call saveHitInfo
+				call CheckComputerTurnHit
+
+				mov al, 88
+				mov [edi], al
+				jmp redraw
+
+			cMiss:
+				cmp HitStreak, 0
+				je skip
+				mov LastTurnOutcome, 3
+
+				skip:
+				mov al, 79
+				mov [edi], al
+
+			redraw:
+				call GenerateMaps
+				call GenerateUIMechanics
+			ret
 ComputerTurn ENDP
 
+SmartComputerTurn PROC			;6 23/15 41
+
+	mov eax, 'S'
+	call writeChar
+
+	cmp LastTurnOutcome, 1					;begin streak
+	je left
+	cmp LastTurnOutcome, 2					;continue in a direction
+	je continueStreak
+	cmp LastTurnOutcome, 3					;pick a new direction (hit then miss without sinking)
+	je backtrack
+	jmp error
+
+	left:
+		mov eax, 0
+		mov esi, OFFSET LastHit
+		mov al, [esi]
+		mov rowCoordinate, ax
+
+		inc esi
+		mov al, [esi]
+		cmp al, 23
+		je right
+		sub al, 2
+		movzx eax, al
+		mov columnCoordinate, ax
+		mov CurrentDirection, 0
+		jmp return
+	right:
+		mov eax, 0
+		mov esi, OFFSET LastHit
+		mov al, [esi]
+		mov rowCoordinate, ax
+		inc esi
+		mov al, [esi]
+		cmp al, 41
+		je error
+		add al, 2
+		movzx eax, al
+		mov columnCoordinate, ax
+		mov CurrentDirection, 1
+		jmp return
+	up:
+		mov eax, 0
+		mov esi, OFFSET LastHit
+		mov al, [esi]
+		cmp al, 6
+		je down
+		dec al
+		mov rowCoordinate, ax
+		inc esi
+		mov al, [esi]
+		mov columnCoordinate, ax
+		mov CurrentDirection, 2
+		jmp return
+
+	down:
+		mov eax, 0
+		mov esi, OFFSET LastHit
+		mov al, [esi]
+		inc al
+		mov rowCoordinate, ax
+		inc esi
+		mov al, [esi]
+		mov columnCoordinate, ax
+		mov CurrentDirection, 3
+		jmp return
+
+	continueStreak:
+		cmp CurrentDirection, 0
+		je left
+		cmp CurrentDirection, 1
+		je right
+		cmp CurrentDirection, 2
+		je up
+		cmp CurrentDirection, 3
+		je down
+		jmp error
+
+	backtrack:
+		cmp HitStreak, 1
+		jne opposite
+		cmp CurrentDirection, 0
+		je up
+		cmp CurrentDirection, 2
+		je right
+		cmp CurrentDirection, 1
+		je down
+		jmp error
+
+		opposite:
+			cmp currentDirection, 0
+			je jumpRight
+			cmp currentDirection, 2
+			je jumpDown
+			
+			jmp error
+
+		jumpRight:
+			mov eax, 0
+			mov esi, OFFSET InitialHit
+			mov al, [esi]
+			mov rowCoordinate, ax
+			inc esi
+			mov al, [esi]
+			add al, 2
+			cmp al, 41								;this shouldn't ever be out of bounds, but just to be safe.
+			jg error
+			mov columnCoordinate, ax
+			mov CurrentDirection, 1
+			jmp return
+
+		jumpDown:
+			mov eax, 0
+			mov esi, OFFSET InitialHit
+			mov al, [esi]
+			inc al
+			mov rowCoordinate, ax
+			inc esi
+			mov al, [esi]
+			mov columnCoordinate, ax
+			mov CurrentDirection, 3
+			jmp return
+			
+	error:
+	mov HitStreak, 0			
+	return:
+ret
+SmartComputerTurn ENDP
+
 CheckComputerTurnHit PROC
+	mov dh, 0
 
 	mov bl, 66
 	cmp [edi], bl
@@ -1986,6 +2150,9 @@ CheckComputerTurnHit PROC
 	mov al, PlayerSweeperHealth
 	dec al
 	mov PlayerSweeperHealth, al
+	cmp al, 0										;if it sunk, set computer turn back to random
+	jne HealthAdjusted
+	mov HitStreak, 0
 	jmp HealthAdjusted
 	
 	PlayerBHit:
@@ -1993,6 +2160,9 @@ CheckComputerTurnHit PROC
 	mov al, PlayerBattleshipHealth
 	dec al
 	mov PlayerBattleshipHealth, al
+	cmp al, 0										;if it sunk, set computer turn back to random
+	jne HealthAdjusted
+	mov HitStreak, 0
 	jmp HealthAdjusted
 
 	PlayerCHit:
@@ -2000,6 +2170,9 @@ CheckComputerTurnHit PROC
 	mov al, PlayerCarrierHealth
 	dec al
 	mov PlayerCarrierHealth, al
+	cmp al, 0										;if it sunk, set computer turn back to random
+	jne HealthAdjusted
+	mov HitStreak, 0
 	jmp HealthAdjusted
 
 	PlayerDHit:
@@ -2007,6 +2180,9 @@ CheckComputerTurnHit PROC
 	mov al, PlayerDestroyerHealth
 	dec al
 	mov PlayerDestroyerHealth, al
+	cmp al, 0										;if it sunk, set computer turn back to random
+	jne HealthAdjusted
+	mov HitStreak, 0
 	jmp HealthAdjusted
 
 	PlayerUHit:
@@ -2014,6 +2190,9 @@ CheckComputerTurnHit PROC
 	mov al, PlayerSubmarineHealth
 	dec al
 	mov PlayerSubmarineHealth, al
+	cmp al, 0										;if it sunk, set computer turn back to random
+	jne HealthAdjusted
+	mov HitStreak, 0
 	jmp HealthAdjusted
 
 	HealthAdjusted:
@@ -2024,5 +2203,32 @@ CheckComputerTurnHit PROC
 
 	ret
 CheckComputerTurnHit ENDP
+SaveHitInfo PROC
 
+	call crlf
+	movzx eax, rowcoordinate
+	call writeint
+	movzx eax, columncoordinate
+	call writeint
+	call crlf
+	mov LastTurnOutcome, 2
+	movzx eax, RowCoordinate
+	movzx ebx, ColumnCoordinate
+	mov esi, OFFSET LastHit
+	mov [esi], al
+	inc esi
+	mov [esi], bl
+
+	cmp HitStreak, 1					;is it the first hit
+	jne return
+
+	mov LastTurnOutcome, 1
+	mov esi, OFFSET InitialHit
+	mov [esi], al
+	inc esi
+	mov [esi], bl
+
+	return:
+ret
+SaveHitInfo ENDP
 END main
