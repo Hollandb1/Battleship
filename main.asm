@@ -2020,7 +2020,8 @@ SmartComputerTurn PROC			;6 23/15 41
 		inc esi
 		mov al, [esi]
 		cmp al, 23
-		je right
+		je leftWall
+
 		sub al, 2
 		movzx eax, al
 		mov columnCoordinate, ax
@@ -2045,7 +2046,7 @@ SmartComputerTurn PROC			;6 23/15 41
 		mov esi, OFFSET LastHit
 		mov al, [esi]
 		cmp al, 6
-		je down
+		je topWall
 		dec al
 		mov rowCoordinate, ax
 		inc esi
@@ -2121,7 +2122,18 @@ SmartComputerTurn PROC			;6 23/15 41
 			mov columnCoordinate, ax
 			mov CurrentDirection, 3
 			jmp return
-			
+		leftWall:
+			cmp LastTurnOutcome, 1
+			je up
+			cmp LastTurnOutcome, 2
+			je jumpRight
+			jmp error
+		topWall:
+			cmp LastTurnOutcome, 1
+			je right
+			cmp LastTurnOutcome, 2
+			je jumpDown
+			jmp error
 	error:
 	mov HitStreak, 0			
 	return:
@@ -2143,7 +2155,7 @@ CheckComputerTurnHit PROC
 	cmp [edi], bl
 	je PlayerDHit
 
-	mov bl, 83
+	mov bl, 85
 	cmp [edi], bl
 	je PlayerUHit
 
