@@ -189,7 +189,7 @@ ComputerDestroyerShipArray BYTE 6 DUP (0)
 ComputerSweeperShipArray BYTE 4 DUP (0)
 
 ;=====================
-;== Hit Registration =
+;== Hit Detection  ===
 ;=====================
 
 UnderScore BYTE "_", 0
@@ -2292,6 +2292,7 @@ RegisterPlayerMiss PROC
 RegisterPlayerMiss ENDP
 
 ComputerTurn PROC
+call Pause2
 movzx eax, LastTurnOutcome
 
 	start:
@@ -3024,5 +3025,11 @@ ComputerShipSunk PROC
 
 	ret
 ComputerShipSunk ENDP
+
+Pause2 PROC
+mov eax, 2000
+call Delay
+ret
+Pause2 ENDP
 
 END main
