@@ -11,10 +11,110 @@ ExitProcess PROTO, dwExitCode:DWORD
 ;== BATTLESHIP ASCII =
 ;=====================
 
+BattleshipTitle1 BYTE "  ____    _  _____ _____ _     _____ ____  _   _ ___ ____   ", 0
+BattleshipTitle2 BYTE " | __ )  / \|_   _|_   _| |   | ____/ ___|| | | |_ _|  _ \  ", 0
+BattleshipTitle3 BYTE " |  _ \ / _ \ | |   | | | |   |  _| \___ \| |_| || || |_) | ", 0
+BattleshipTitle4 BYTE " | |_) / ___ \| |   | | | |___| |___ ___) |  _  || ||  __/  ", 0
+BattleshipTitle5 BYTE " |____/_/   \_\_|   |_| |_____|_____|____/|_| |_|___|_|     ", 0
+
+ Carrier1 BYTE "                                     |__", 0
+ Carrier2 BYTE "                                     |\/", 0
+ Carrier3 BYTE "                                     ---", 0
+ Carrier4 BYTE "                                     / | [", 0
+ Carrier5 BYTE "                              !      | |||", 0
+ Carrier6 BYTE "                            _/|     _/|-++'", 0
+ Carrier7 BYTE "                        +  +--|    |--|--|_ |-", 0
+ Carrier8 BYTE "                     { /|__|  |/\__|  |--- |||__/", 0
+ Carrier9 BYTE "                    +---------------___[}-_===_.'____                 /\", 0
+Carrier10 BYTE "                ____`-' ||___-{]_| _[}-  |     |_[___\==--            \/   _", 0
+Carrier11 BYTE " __..._____--==/___]_|__|_____________________________[___\==--____,------' .7", 0
+Carrier12 BYTE "|                                                                     BB-61/", 0
+Carrier13 BYTE " \_________________________________________________________________________|", 0
+
+author1 BYTE "Created By:"
+author2 BYTE "Brandie Holland", 0
+author3 BYTE "Andrew Ryan", 0
+author4 BYTE "Jiajun Chen", 0
+
+Victory1 BYTE " __     _____ ____ _____ ___  ______   ___ ", 0
+Victory2 BYTE " \ \   / /_ _/ ___|_   _/ _ \|  _ \ \ / / |", 0
+Victory3 BYTE "  \ \ / / | | |     | || | | | |_) \ V /| |", 0
+Victory4 BYTE "   \ V /  | | |___  | || |_| |  _ < | | |_|", 0
+Victory5 BYTE "    \_/  |___\____| |_| \___/|_| \_\|_| (_)", 0
+
+Defeat1 BYTE "  ____  _____ _____ _____    _  _____ _ ", 0
+Defear2 BYTE " |  _ \| ____|  ___| ____|  / \|_   _| |", 0
+Defeat3 BYTE " | | | |  _| | |_  |  _|   / _ \ | | | |", 0
+Defeat4 BYTE " | |_| | |___|  _| | |___ / ___ \| | |_|", 0
+Defeat5 BYTE " |____/|_____|_|   |_____/_/   \_\_| (_)", 0
+
 BattleshipASCIIRow1 BYTE " _  _ ______    __ __   ___ _ ", 0
 BattleshipASCIIRow2 BYTE "|_)|_| |  | |  |_ (_ |_| | |_)", 0
 BattleshipASCIIRow3 BYTE "|_)| | |  | |__|____)| |_|_|", 0
 
+ explosion1 BYTE "                               ________________", 0
+ explosion2 BYTE "                          ____/ (  (    )   )  \___", 0
+ explosion3 BYTE "                         /( (  (  )   _    ))  )   )\", 0
+ explosion4 BYTE "                       ((     (   )(    )  )   (   )  )", 0
+ explosion5 BYTE "                     ((/  ( _(   )   (   _) ) (  () )  )", 0
+ explosion6 BYTE "                    ( (  ( (_)   ((    (   )  .((_ ) .  )_", 0
+ explosion7 BYTE "                   ( (  )    (      (  )    )   ) . ) (   )", 0
+ explosion8 BYTE "                  (  (   (  (   ) (  _  ( _) ).  ) . ) ) ( )", 0
+ explosion9 BYTE "                  ( (  (   ) (  )   (  ))     ) _)(   )  )  )", 0
+explosion10 BYTE "                 ( (  ( \ ) (    (_  ( ) ( )  )   ) )  )) ( )", 0
+explosion11 BYTE "                  (  (   (  (   (_ ( ) ( _    )  ) (  )  )   )", 0
+explosion12 BYTE "                 ( (  ( (  (  )     (_  )  ) )  _)   ) _( ( )", 0
+explosion13 BYTE "                  ((  (   )(    (     _    )   _) _(_ (  (_ )", 0
+explosion14 BYTE "                   (_((__(_(__(( ( ( |  ) ) ) )_))__))_)___)", 0
+explosion15 BYTE "                   ((__)        \\||lll|l||///          \_))", 0
+explosion16 BYTE "                            (   /(/ (  )  ) )\   )", 0
+explosion17 BYTE "                          (    ( ( ( | | ) ) )\   )", 0
+explosion18 BYTE "                           (   /(| / ( )) ) ) )) )", 0
+explosion19 BYTE "                         (     ( ((((_(|)_)))))     )", 0
+explosion20 BYTE "                          (      ||\(|(|)|/||     )", 0
+explosion21 BYTE "                        (        |(||(||)||||        )", 0
+explosion22 BYTE "                          (     //|/l|||)|\\ \     )", 0
+explosion23 BYTE "                        (/ / //  /|//||||\\  \ \  \ _)", 0
+explosion24 BYTE "             _      _      _      _      _      _      _      _", 0
+explosion25 BYTE "             )`'-.,_)`'-.,_)`'-.,_)`'-.,_)`'-.,_)`'-.,_)`'-.,_)`'-.,_", 0
+
+PlayerShipSunkMessage BYTE "Player ship sunk!", 0
+ComputerShipSunkMessage BYTE "Computer ship sunk!", 0
+
+;=====================
+;===== DIRECTIONS ====
+;=====================
+
+directionsMessage BYTE "Directions:"
+
+intro1 BYTE "Welcome to BATTLESHIP!", 0
+intro2 BYTE "You are approaching the enemy, ready to start a naval battle. You will be assigned a grid.", 0
+intro3 BYTE "This is used to place your ships for battle against the enemy.", 0
+intro4 BYTE "You have five ships: Carrier, Battleship, Submarine, Destroyer, Sweeper.", 0
+intro5 BYTE "Each ship uses a specified size on the grid, so plan your placements accordingly.", 0
+intro6 BYTE "You will have view of another grid, the computer grid.", 0
+intro7 BYTE "This will only show where you have struck in enemy waters.", 0
+intro8 BYTE "The goal of the game is to sink every ship of your enemy.", 0
+intro9 BYTE "Sink all five? You win. You don't? You lose. Good luck Captain!", 0
+
+shipPlacementDirection1 BYTE "Ship Placement", 0
+shipPlacementDirection2 BYTE "To place a ship, click a coordinate on the grid.", 0
+shipPlacementDirection3 BYTE "A left click will place a ship vertically, while a right click will place a ship horizontally.", 0
+shipPlacementDirection4 BYTE "All ship placements are final, so plan ahead Captain!", 0
+shipToPlace BYTE "Ship to place: ", 0
+ShipPlacementError BYTE "Invalid placement. Please try again."
+ShipPlaced BYTE "Ship has been placed", 0
+
+playerShipPlacementComplete BYTE "All ships have been placed. Prepare for battle!", 0
+computerShipPlacementComplete BYTE "The computer is ready for battle.", 0
+
+playerTurnDirection1 BYTE "Time to attack!", 0
+playerTurnDirection2 BYTE "To attack, click a coordinate on the computer grid."
+
+playerTurnResult BYTE "Player attack resulted in a ", 0
+computerTurnResult BYTE "Computer attack resulted in a ", 0
+hitResult BYTE "hit!", 0
+missResult BYTE "miss.", 0
 
 ;=====================
 ;======= SHIPS =======
@@ -109,14 +209,9 @@ ShipPlacementTitle BYTE "Ship Placement", 0
 ShipPlacementDirection BYTE "To place a ship, click a coordinate on the map", 0
 ShipPlacementVertical BYTE "Vertical Placement: Left Click", 0
 ShipPlacementHorizontal BYTE "Horizontal Placement: Right Click", 0
-ShipPlacementError BYTE "Invalid placement. Please try again."
-ShipPlaced BYTE "Ship has been placed", 0
 
 TotalHealthText BYTE "Total Health: ", 0
 ShipsRemainingText BYTE "Ships Remaining: ", 0
-
-PlayerTurnMessage BYTE "Your turn has resulted in a: ", 0
-ComputerMoveMessage BYTE "The computer's turn has resulted in a: ", 0
 
 ;=====================
 ;=== Computer Turn ===
@@ -133,6 +228,9 @@ HitStreak BYTE 0
 main PROC
 
 	call Randomize
+
+	call GenerateSplashScreen
+	;call GenerateIntroductionScreen
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -142,8 +240,7 @@ main PROC
 	call Crlf
 
 	call PlacePlayerShips
-	call PlaceComputerShips
-
+	call PlaceComputerShips 
 	TurnRotation:
 
 	call PlayerTurn
@@ -206,8 +303,8 @@ pt COORD <>
 ;===============================
 GetMouseCoordinates PROC
 ;===============================
-; 
-; Returns mouse coordinates 
+;
+; Returns mouse coordinates
 ; on left and right mouse clicks
 ;
 ; X: rowCoordinate
@@ -254,7 +351,7 @@ GetMouseCoordinates PROC
 	mov columnCoordinate, ax
 
 	jmp Complete
-	
+
 	HandleRightClick:
 
 	mov ax, InputRecord.MouseEvent.dwMousePosition.X
@@ -329,6 +426,224 @@ TranslateColumnCoordinate PROC
 	ret
 TranslateColumnCoordinate ENDP
 
+GenerateSplashScreen PROC
+
+	mov eax, yellow
+	call SetTextColor
+
+	mov dl, 28
+	mov dh, 3
+	call GoToXy
+
+	mov edx, OFFSET BattleshipTitle1
+	call WriteString
+
+	mov dl, 28
+	mov dh, 4
+	call GoToXy
+
+	mov edx, OFFSET BattleshipTitle2
+	call WriteString
+
+	mov dl, 28
+	mov dh, 5
+	call GoToXy
+
+	mov edx, OFFSET BattleshipTitle3
+	call WriteString
+
+	mov dl, 28
+	mov dh, 6
+	call GoToXy
+
+	mov edx, OFFSET BattleshipTitle4
+	call WriteString
+
+	mov dl, 28
+	mov dh, 7
+	call GoToXy
+
+	mov edx, OFFSET BattleshipTitle5
+	call WriteString
+
+	mov eax, gray
+	call SetTextColor
+
+	mov dl, 18
+	mov dh, 12
+	call GoToXY
+
+	mov edx, OFFSET Carrier1
+	call WriteString
+
+	mov dl, 18
+	mov dh, 13
+	call GoToXY
+
+	mov edx, OFFSET Carrier2
+	call WriteString
+
+	mov dl, 18
+	mov dh, 14
+	call GoToXY
+
+	mov edx, OFFSET Carrier3
+	call WriteString
+
+	mov dl, 18
+	mov dh, 15
+	call GoToXY
+
+	mov edx, OFFSET Carrier4
+	call WriteString
+
+	mov dl, 18
+	mov dh, 16
+	call GoToXY
+
+	mov edx, OFFSET Carrier5
+	call WriteString
+
+	mov dl, 18
+	mov dh, 17
+	call GoToXY
+
+	mov edx, OFFSET Carrier6
+	call WriteString
+
+	mov dl, 18
+	mov dh, 18
+	call GoToXY
+
+	mov edx, OFFSET Carrier7
+	call WriteString
+
+	mov dl, 18
+	mov dh, 19
+	call GoToXY
+
+	mov edx, OFFSET Carrier8
+	call WriteString
+
+	mov dl, 18
+	mov dh, 20
+	call GoToXY
+
+	mov edx, OFFSET Carrier9
+	call WriteString
+
+	mov dl, 18
+	mov dh, 21
+	call GoToXY
+
+	mov edx, OFFSET Carrier10
+	call WriteString
+
+	mov dl, 18
+	mov dh, 22
+	call GoToXY
+
+	mov edx, OFFSET Carrier11
+	call WriteString
+
+	mov dl, 18
+	mov dh, 23
+	call GoToXY
+
+	mov edx, OFFSET Carrier12
+	call WriteString
+
+	mov dl, 18
+	mov dh, 24
+	call GoToXY
+
+	mov edx, OFFSET Carrier13
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
+	mov eax, 3000
+	call Delay
+
+	call Clrscr
+
+	ret
+GenerateSplashScreen ENDP
+
+GenerateIntroductionScreen PROC
+
+	mov dl, 42
+	mov dh, 6
+	call GoToXY
+
+	mov edx, OFFSET intro1
+	call WriteString
+
+	mov dl, 15
+	mov dh, 8
+	call GoToXY
+
+	mov edx, OFFSET intro2
+	call WriteString
+
+	mov dl, 25
+	mov dh, 9
+	call GoToXY
+
+	mov edx, OFFSET intro3
+	call WriteString
+
+	mov dl, 22
+	mov dh, 10
+	call GoToXY
+
+	mov edx, OFFSET intro4
+	call WriteString
+
+	mov dl, 16
+	mov dh, 11
+	call GoToXY
+
+	mov edx, OFFSET intro5
+	call WriteString
+
+	mov dl, 28
+	mov dh, 12
+	call GoToXY
+
+	mov edx, OFFSET intro6
+	call WriteString
+
+	mov dl, 25
+	mov dh, 13
+	call GoToXY
+
+	mov edx, OFFSET intro7
+	call WriteString
+
+	mov dl, 25
+	mov dh, 14
+	call GoToXY
+
+	mov edx, OFFSET intro8
+	call WriteString
+
+	mov dl, 23
+	mov dh, 16
+	call GoToXY
+
+	mov edx, OFFSET intro9
+	call WriteString
+
+	mov eax, 16000
+	call Delay
+
+	call Clrscr
+
+	ret
+GenerateIntroductionScreen ENDP
+
 GenerateGameTitle PROC
 
 	mov eax, white
@@ -378,7 +693,7 @@ GenerateMaps PROC
 
 	mov ecx, 22
 	PrintPlayerColumnCoordinates:
-		
+
 		mov eax, [esi]
 		call WriteChar
 
@@ -539,11 +854,11 @@ GenerateMaps PROC
 			call WriteChar
 
 			FoundComputerMapCharacter:
-		
+
 			inc edi
 
 		loop PrintComputerRow
-		
+
 		pop ecx
 		inc dh
 
@@ -656,7 +971,7 @@ CalculatePlayerShipsRemaining PROC
 
 	cmp ebx, 1
 	jg PSRYellow
-	
+
 	mov eax, red
 	call SetTextColor
 	mov eax, ebx
@@ -680,7 +995,7 @@ CalculatePlayerShipsRemaining PROC
 	call SetTextColor
 	mov eax, ebx
 	call WriteDec
-	
+
 	PSComplete:
 
 	mov eax, white
@@ -730,7 +1045,7 @@ CalculateComputerShipsRemaining PROC
 
 	cmp ebx, 1
 	jg CSRYellow
-	
+
 	mov eax, red
 	call SetTextColor
 	mov eax, ebx
@@ -754,7 +1069,7 @@ CalculateComputerShipsRemaining PROC
 	call SetTextColor
 	mov eax, ebx
 	call WriteDec
-	
+
 	CSComplete:
 
 	mov eax, white
@@ -887,7 +1202,7 @@ PlacePlayerBattleship PROC
 	add edi, mapIndex
 
 	mov ecx, 4
-	
+
 	PVB:
 
 		mov al, 66
@@ -1208,7 +1523,7 @@ CheckHorizontalShipPlacementCollision ENDP
 
 ;-----------------------------------------------------
 ; PlaceComputerShips
-; Fills the computer ship arrays with coordinates that 
+; Fills the computer ship arrays with coordinates that
 ; correspond with spots on the computer map.
 ; (row, column, row, column, row, column....)
 ; Returns: EAX = the random int
@@ -1221,7 +1536,7 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
-	;call PrintComputerArrays
+	call PrintComputerArrays
 
 	ret
 PlaceComputerShips ENDP
@@ -1231,7 +1546,7 @@ PlaceComputerCarrier PROC
 	mov upperbound, 2
 	call BetterRandomNumber
 	cmp al, 1
-	je vertical 
+	je vertical
 
 	horizontal:
 		mov esi, OFFSET ComputerCarrierShipArray
@@ -1258,12 +1573,12 @@ PlaceComputerCarrier PROC
 PlaceComputerCarrier ENDP
 
 PlaceComputerBattleship PROC
-	start: 
+	start:
 		mov lowerbound, 1
 		mov upperbound, 2
 		call BetterRandomNumber
 		cmp al, 1
-		je vertical 
+		je vertical
 
 		horizontal:
 			mov esi, OFFSET ComputerBattleshipShipArray
@@ -1301,7 +1616,7 @@ PlaceComputerSubmarine PROC
 		mov upperbound, 2
 		call BetterRandomNumber
 		cmp al, 1
-		je vertical 
+		je vertical
 
 		horizontal:
 			mov esi, OFFSET ComputerSubmarineShipArray
@@ -1338,7 +1653,7 @@ PlaceComputerDestroyer PROC
 		mov upperbound, 2
 		call BetterRandomNumber
 		cmp al, 1
-		je vertical 
+		je vertical
 
 		horizontal:
 			mov esi, OFFSET ComputerDestroyerShipArray
@@ -1375,7 +1690,7 @@ PlaceComputerSweeper PROC
 		mov upperbound, 2
 		call BetterRandomNumber
 		cmp al, 1
-		je vertical 
+		je vertical
 
 		horizontal:
 			mov esi, OFFSET ComputerSweeperShipArray
@@ -1397,8 +1712,8 @@ PlaceComputerSweeper PROC
 			dec ecx
 			call FillArrayVertically
 
+			
 		return:
-
 			mov esi, OFFSET ComputerSweeperShipArray
 			movzx ecx, ComputerSweeperHealth
 			call CheckRandPlacementCollision
@@ -1417,7 +1732,7 @@ PlaceHorizontal PROC
 	mov lowerbound, ebx
 	call BetterRandomOdd
 	mov currentCol, al
-	mov [esi], al 
+	mov [esi], al
 	dec esi
 
 	movzx ebx, RowMax						;1st row coorinate
@@ -1434,9 +1749,9 @@ PlaceHorizontal ENDP
 
 PlaceVertical PROC
 
-	mov bh, RowMax		
+	mov bh, RowMax
 	sub bh, bl
-	movzx ebx, bh				
+	movzx ebx, bh
 	mov upperbound, ebx
 	movzx ebx, RowMin
 	mov lowerbound, ebx
@@ -1453,7 +1768,7 @@ PlaceVertical PROC
 	mov currentCol, al					;dl=col coordinate
 	mov [esi], al
 
-	ret 
+	ret
 PlaceVertical ENDP
 
 FillArrayVertically PROC
@@ -1464,11 +1779,8 @@ FillArrayVertically PROC
 		inc esi
 		inc dh
 		mov [esi], dh
-		mov [edi], dh
 		inc esi
-		inc edi
 		mov [esi], dl
-		mov [edi], dl
 	loop FillArray
 
 ret
@@ -1526,7 +1838,7 @@ CheckRandPlacementCollision PROC
 
 	return:
 
-ret 
+ret
 CheckRandPlacementCollision ENDP
 
 CheckShipCollision PROC uses EBX EDX
@@ -1588,7 +1900,7 @@ BetterRandomNumber endp
 ;-----------------------------------------------------
 
 BetterRandomOdd proc
-	
+
 	mov ebx, lowerbound
 	mov eax, upperbound
 	sub eax, ebx
@@ -1657,13 +1969,13 @@ PlayerTurn PROC
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
 	call TranslateColumnCoordinate
-	
+
 	call CheckPlayerAttack
 
 	call GenerateMaps
 	call GenerateUIMechanics
 
-	ret 
+	ret
 PlayerTurn ENDP
 
 .data
@@ -1690,9 +2002,6 @@ CheckPlayerAttack PROC
 
 		CheckCarrierColumn:
 
-		mov edx, OFFSET FoundRowMessage
-		call WriteString
-
 		inc esi
 		cmp [esi], bl
 		je PlayerCarrierHit
@@ -1702,8 +2011,21 @@ CheckPlayerAttack PROC
 
 		PlayerCarrierHit:
 
-		mov edx, OFFSET PlayerHitMessage
-		call WriteString
+		mov eax, 0
+
+		mov al, ComputerCarrierHealth
+		dec al
+		mov ComputerCarrierHealth, al
+
+		cmp eax, 0
+		je ComputerCarrierSunk
+		jmp ComputerCarrierNotSunk
+
+		ComputerCarrierSunk:
+
+		call ComputerShipSunk
+
+		ComputerCarrierNotSunk:
 
 		jmp ShipAttacked
 
@@ -1732,9 +2054,6 @@ CheckPlayerAttack PROC
 
 		CheckBattleshipColumn:
 
-		mov edx, OFFSET FoundRowMessage
-		call WriteString
-
 		inc esi
 		cmp [esi], bl
 		je PlayerBattleshipHit
@@ -1744,8 +2063,21 @@ CheckPlayerAttack PROC
 
 		PlayerBattleshipHit:
 
-		mov edx, OFFSET PlayerHitMessage
-		call WriteString
+		mov eax, 0
+
+		mov al, ComputerBattleshipHealth
+		dec al
+		mov ComputerBattleshipHealth, al
+
+		cmp al, 0
+		je ComputerBattleshipSunk
+		jmp ComputerBattleshipNotSunk
+
+		ComputerBattleshipSunk:
+
+		call ComputerShipSunk
+
+		ComputerBattleshipNotSunk:
 
 		jmp ShipAttacked
 
@@ -1774,9 +2106,6 @@ CheckPlayerAttack PROC
 
 		CheckSubmarineColumn:
 
-		mov edx, OFFSET FoundRowMessage
-		call WriteString
-
 		inc esi
 		cmp [esi], bl
 		je PlayerSubmarineHit
@@ -1786,8 +2115,21 @@ CheckPlayerAttack PROC
 
 		PlayerSubmarineHit:
 
-		mov edx, OFFSET PlayerHitMessage
-		call WriteString
+		mov eax, 0
+
+		mov al, ComputerSubmarineHealth
+		dec al
+		mov ComputerSubmarineHealth, al
+
+		cmp al, 0
+		je ComputerSubmarineSunk
+		jmp ComputerSubmarineNotSunk
+
+		ComputerSubmarineSunk:
+
+		call ComputerShipSunk
+
+		ComputerSubmarineNotSunk:
 
 		jmp ShipAttacked
 
@@ -1816,9 +2158,6 @@ CheckPlayerAttack PROC
 
 		CheckDestroyerColumn:
 
-		mov edx, OFFSET FoundRowMessage
-		call WriteString
-
 		inc esi
 		cmp [esi], bl
 		je PlayerDestroyerHit
@@ -1828,8 +2167,21 @@ CheckPlayerAttack PROC
 
 		PlayerDestroyerHit:
 
-		mov edx, OFFSET PlayerHitMessage
-		call WriteString
+		mov eax, 0
+
+		mov al, ComputerDestroyerHealth
+		dec al
+		mov ComputerDestroyerHealth, al
+
+		cmp al, 0
+		je ComputerDestroyerSunk
+		jmp ComputerDestroyerNotSunk
+
+		ComputerDestroyerSunk:
+
+		call ComputerShipSunk
+
+		ComputerDestroyerNotSunk:
 
 		jmp ShipAttacked
 
@@ -1858,9 +2210,6 @@ CheckPlayerAttack PROC
 
 		CheckSweeperColumn:
 
-		mov edx, OFFSET FoundRowMessage
-		call WriteString
-
 		inc esi
 		cmp [esi], bl
 		je PlayerSweeperHit
@@ -1870,8 +2219,20 @@ CheckPlayerAttack PROC
 
 		PlayerSweeperHit:
 
-		mov edx, OFFSET PlayerHitMessage
-		call WriteString
+		mov eax, 0
+		mov al, ComputerSweeperHealth
+		dec al
+		mov ComputerSweeperHealth, 0
+
+		cmp al, 0
+		je ComputerSweeperSunk
+		jmp ComputerSweeperNotSunk
+
+		ComputerSweeperSunk:
+
+		call ComputerShipSunk
+
+		ComputerSweeperNotSunk:
 
 		jmp ShipAttacked
 
@@ -1895,11 +2256,16 @@ CheckPlayerAttack PROC
 	call RegisterPlayerMiss
 
 	PlayerAttackComplete:
-	
+
 	ret
 CheckPlayerAttack ENDP
 
 RegisterPlayerHit PROC
+
+	mov eax, 0
+	mov al, ComputerHealth
+	dec al
+	mov ComputerHealth, al
 
 	mov edi, OFFSET ComputerMapViewable
 	add edi, mapIndex
@@ -1913,11 +2279,11 @@ RegisterPlayerHit PROC
 RegisterPlayerHit ENDP
 
 RegisterPlayerMiss PROC
-	
+
 	mov edi, OFFSET ComputerMapViewable
 	add edi, mapIndex
 	sub edi, 40
-	
+
 	mov bl, 79
 
 	mov [edi], bl
@@ -1942,7 +2308,7 @@ movzx eax, LastTurnOutcome
 			mov HitStreak, 0
 			mov lowerbound, 6
 			mov upperbound, 15
-			call BetterRandomNumber 
+			call BetterRandomNumber
 			mov rowCoordinate, ax
 			mov lowerbound, 23
 			mov upperbound, 41
@@ -1970,12 +2336,12 @@ movzx eax, LastTurnOutcome
 			mov al, [esi]
 			cmp al, [edi]
 			je RandomTurn
-			
+
 			cHit:
 				mov al, HitStreak					;hit counter
 				inc al
 				mov HitStreak, al
-				
+
 				call saveHitInfo
 				call CheckComputerTurnHit
 
@@ -2021,7 +2387,6 @@ SmartComputerTurn PROC			;6 23/15 41
 		mov al, [esi]
 		cmp al, 23
 		je leftWall
-
 		sub al, 2
 		movzx eax, al
 		mov columnCoordinate, ax
@@ -2094,7 +2459,7 @@ SmartComputerTurn PROC			;6 23/15 41
 			je jumpRight
 			cmp currentDirection, 2
 			je jumpDown
-			
+
 			jmp error
 
 		jumpRight:
@@ -2122,20 +2487,22 @@ SmartComputerTurn PROC			;6 23/15 41
 			mov columnCoordinate, ax
 			mov CurrentDirection, 3
 			jmp return
-		leftWall:
-			cmp LastTurnOutcome, 1
-			je up
-			cmp LastTurnOutcome, 2
-			je jumpRight
-			jmp error
-		topWall:
-			cmp LastTurnOutcome, 1
-			je right
-			cmp LastTurnOutcome, 2
-			je jumpDown
-			jmp error
+
+      leftWall:
+  			cmp LastTurnOutcome, 1
+  			je up
+  			cmp LastTurnOutcome, 2
+  			je jumpRight
+  			jmp error
+		  topWall:
+  			cmp LastTurnOutcome, 1
+  			je right
+  			cmp LastTurnOutcome, 2
+  			je jumpDown
+  			jmp error
+
 	error:
-	mov HitStreak, 0			
+	mov HitStreak, 0
 	return:
 ret
 SmartComputerTurn ENDP
@@ -2166,7 +2533,7 @@ CheckComputerTurnHit PROC
 	jne HealthAdjusted
 	mov HitStreak, 0
 	jmp HealthAdjusted
-	
+
 	PlayerBHit:
 
 	mov al, PlayerBattleshipHealth
@@ -2237,4 +2604,425 @@ SaveHitInfo PROC
 	return:
 ret
 SaveHitInfo ENDP
+
+PlayerShipSunk PROC
+
+	call Clrscr
+
+	mov eax, yellow
+	call SetTextColor
+
+	mov dl, 40
+	mov dh, 2
+	call GoToXY
+
+	mov edx, OFFSET PlayerShipSunkMessage
+	call WriteString
+
+	mov eax, lightRed
+	call SetTextColor
+
+	mov dl, 10
+	mov dh, 3
+	call GoToXY
+
+	mov edx, OFFSET explosion1
+	call WriteString
+
+	mov dl, 10
+	mov dh, 4
+	call GoToXY
+
+	mov edx, OFFSET explosion2
+	call WriteString
+
+	mov dl, 10
+	mov dh, 5
+	call GoToXY
+
+	mov edx, OFFSET explosion3
+	call WriteString
+
+	mov dl, 10
+	mov dh, 6
+	call GoToXY
+
+	mov edx, OFFSET explosion4
+	call WriteString
+
+	mov dl, 10
+	mov dh, 7
+	call GoToXY
+
+	mov edx, OFFSET explosion5
+	call WriteString
+
+	mov dl, 10
+	mov dh, 8
+	call GoToXY
+
+	mov edx, OFFSET explosion6
+	call WriteString
+
+	mov dl, 10
+	mov dh, 9
+	call GoToXY
+
+	mov edx, OFFSET explosion7
+	call WriteString
+
+	mov dl, 10
+	mov dh, 10
+	call GoToXY
+
+	mov edx, OFFSET explosion8
+	call WriteString
+
+	mov dl, 10
+	mov dh, 11
+	call GoToXY
+
+	mov edx, OFFSET explosion9
+	call WriteString
+
+	mov dl, 10
+	mov dh, 12
+	call GoToXY
+
+	mov edx, OFFSET explosion10
+	call WriteString
+
+	mov dl, 10
+	mov dh, 13
+	call GoToXY
+
+	mov edx, OFFSET explosion11
+	call WriteString
+
+	mov dl, 10
+	mov dh, 14
+	call GoToXY
+
+	mov edx, OFFSET explosion12
+	call WriteString
+
+	mov dl, 10
+	mov dh, 15
+	call GoToXY
+
+	mov edx, OFFSET explosion13
+	call WriteString
+
+	mov dl, 10
+	mov dh, 16
+	call GoToXY
+
+	mov edx, OFFSET explosion14
+	call WriteString
+
+	mov dl, 10
+	mov dh, 17
+	call GoToXY
+
+	mov edx, OFFSET explosion15
+	call WriteString
+
+	mov dl, 10
+	mov dh, 18
+	call GoToXY
+
+	mov edx, OFFSET explosion16
+	call WriteString
+
+	mov dl, 10
+	mov dh, 19
+	call GoToXY
+
+	mov edx, OFFSET explosion17
+	call WriteString
+
+	mov dl, 10
+	mov dh, 20
+	call GoToXY
+
+	mov edx, OFFSET explosion18
+	call WriteString
+
+	mov dl, 10
+	mov dh, 21
+	call GoToXY
+
+	mov edx, OFFSET explosion19
+	call WriteString
+
+	mov dl, 10
+	mov dh, 22
+	call GoToXY
+
+	mov edx, OFFSET explosion20
+	call WriteString
+
+	mov dl, 10
+	mov dh, 23
+	call GoToXY
+
+	mov edx, OFFSET explosion21
+	call WriteString
+
+	mov dl, 10
+	mov dh, 24
+	call GoToXY
+
+	mov edx, OFFSET explosion22
+	call WriteString
+
+	mov dl, 10
+	mov dh, 25
+	call GoToXY
+
+	mov edx, OFFSET explosion23
+	call WriteString
+
+	mov eax, lightCyan
+	call SetTextColor
+
+	mov dl, 10
+	mov dh, 26
+	call GoToXY
+
+	mov edx, OFFSET explosion24
+	call WriteString
+
+	mov dl, 10
+	mov dh, 27
+	call GoToXY
+
+	mov edx, OFFSET explosion25
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
+	mov eax, 3000
+	call Delay
+
+	call Clrscr
+
+	call GenerateGameTitle
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+PlayerShipSunk ENDP
+
+ComputerShipSunk PROC
+
+	call Clrscr
+
+	mov eax, yellow
+	call SetTextColor
+
+	mov dl, 40
+	mov dh, 2
+	call GoToXY
+
+	mov edx, OFFSET ComputerShipSunkMessage
+	call WriteString
+
+	mov eax, lightRed
+	call SetTextColor
+
+	mov dl, 10
+	mov dh, 3
+	call GoToXY
+
+	mov edx, OFFSET explosion1
+	call WriteString
+
+	mov dl, 10
+	mov dh, 4
+	call GoToXY
+
+	mov edx, OFFSET explosion2
+	call WriteString
+
+	mov dl, 10
+	mov dh, 5
+	call GoToXY
+
+	mov edx, OFFSET explosion3
+	call WriteString
+
+	mov dl, 10
+	mov dh, 6
+	call GoToXY
+
+	mov edx, OFFSET explosion4
+	call WriteString
+
+	mov dl, 10
+	mov dh, 7
+	call GoToXY
+
+	mov edx, OFFSET explosion5
+	call WriteString
+
+	mov dl, 10
+	mov dh, 8
+	call GoToXY
+
+	mov edx, OFFSET explosion6
+	call WriteString
+
+	mov dl, 10
+	mov dh, 9
+	call GoToXY
+
+	mov edx, OFFSET explosion7
+	call WriteString
+
+	mov dl, 10
+	mov dh, 10
+	call GoToXY
+
+	mov edx, OFFSET explosion8
+	call WriteString
+
+	mov dl, 10
+	mov dh, 11
+	call GoToXY
+
+	mov edx, OFFSET explosion9
+	call WriteString
+
+	mov dl, 10
+	mov dh, 12
+	call GoToXY
+
+	mov edx, OFFSET explosion10
+	call WriteString
+
+	mov dl, 10
+	mov dh, 13
+	call GoToXY
+
+	mov edx, OFFSET explosion11
+	call WriteString
+
+	mov dl, 10
+	mov dh, 14
+	call GoToXY
+
+	mov edx, OFFSET explosion12
+	call WriteString
+
+	mov dl, 10
+	mov dh, 15
+	call GoToXY
+
+	mov edx, OFFSET explosion13
+	call WriteString
+
+	mov dl, 10
+	mov dh, 16
+	call GoToXY
+
+	mov edx, OFFSET explosion14
+	call WriteString
+
+	mov dl, 10
+	mov dh, 17
+	call GoToXY
+
+	mov edx, OFFSET explosion15
+	call WriteString
+
+	mov dl, 10
+	mov dh, 18
+	call GoToXY
+
+	mov edx, OFFSET explosion16
+	call WriteString
+
+	mov dl, 10
+	mov dh, 19
+	call GoToXY
+
+	mov edx, OFFSET explosion17
+	call WriteString
+
+	mov dl, 10
+	mov dh, 20
+	call GoToXY
+
+	mov edx, OFFSET explosion18
+	call WriteString
+
+	mov dl, 10
+	mov dh, 21
+	call GoToXY
+
+	mov edx, OFFSET explosion19
+	call WriteString
+
+	mov dl, 10
+	mov dh, 22
+	call GoToXY
+
+	mov edx, OFFSET explosion20
+	call WriteString
+
+	mov dl, 10
+	mov dh, 23
+	call GoToXY
+
+	mov edx, OFFSET explosion21
+	call WriteString
+
+	mov dl, 10
+	mov dh, 24
+	call GoToXY
+
+	mov edx, OFFSET explosion22
+	call WriteString
+
+	mov dl, 10
+	mov dh, 25
+	call GoToXY
+
+	mov edx, OFFSET explosion23
+	call WriteString
+
+	mov eax, lightCyan
+	call SetTextColor
+
+	mov dl, 10
+	mov dh, 26
+	call GoToXY
+
+	mov edx, OFFSET explosion24
+	call WriteString
+
+	mov dl, 10
+	mov dh, 27
+	call GoToXY
+
+	mov edx, OFFSET explosion25
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
+	mov eax, 3000
+	call Delay
+
+	call Clrscr
+
+	call GenerateGameTitle
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	ret
+ComputerShipSunk ENDP
+
 END main
