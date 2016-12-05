@@ -87,6 +87,7 @@ ComputerShipSunkMessage BYTE "Computer ship sunk!", 0
 
 directionsMessage BYTE "Directions:", 0
 clearLine BYTE "                                                                                                  ", 0
+Line BYTE "|", 0
 
 intro1 BYTE "Welcome to BATTLESHIP!", 0
 intro2 BYTE "You are approaching the enemy, ready to start a naval battle. You will be assigned a grid.", 0
@@ -121,11 +122,11 @@ missResult BYTE "miss.", 0
 ;======= SHIPS =======
 ;=====================
 
-BattleShip BYTE "BattleShip(4)		", 0
-Carrier BYTE "Carrier(5)		", 0
-Submarine BYTE "Submarine(3)		", 0
-Destroyer BYTE "Detroyer(3)		", 0
-Sweeper BYTE "Sweeper(2)		", 0
+BattleShip BYTE "BattleShip(4)...		", 0
+Carrier BYTE "Carrier(5)...		", 0
+Submarine BYTE "Submarine(3)...		", 0
+Destroyer BYTE "Detroyer(3)...		", 0
+Sweeper BYTE "Sweeper(2)...		", 0
 
 ;=====================
 ;==== PLAYER MAP =====
@@ -212,7 +213,7 @@ ShipPlacementVertical BYTE "Vertical Placement: Left Click", 0
 ShipPlacementHorizontal BYTE "Horizontal Placement: Right Click", 0
 
 TotalHealthText BYTE "Total Health: ", 0
-ShipsRemainingText BYTE "Ships Remaining: ", 0
+ShipsRemainingText BYTE "   Ships Remaining: ", 0
 
 ;=====================
 ;=== Computer Turn ===
@@ -241,7 +242,7 @@ main PROC
 	call Crlf
 
 	call PlacePlayerShips
-	call PlaceComputerShips 
+	call PlaceComputerShips
 	TurnRotation:
 
 	call PlayerTurn
@@ -652,21 +653,21 @@ GenerateGameTitle PROC
 	call SetTextColor
 
 	mov dl, 38
-	mov dh, 1
+	mov dh, 0
 	call GoToXY
 
 	mov edx, OFFSET BattleshipASCIIRow1
 	call WriteString
 
 	mov dl, 38
-	mov dh, 2
+	mov dh, 1
 	call GoToXY
 
 	mov edx, OFFSET BattleshipASCIIRow2
 	call WriteString
 
 	mov dl, 38
-	mov dh, 3
+	mov dh, 2
 	call GoToXY
 
 	mov edx, OFFSET BattleshipASCIIRow3
@@ -877,22 +878,22 @@ GenerateMaps ENDP
 
 GenerateUIMechanics PROC
 
-	mov dl, 30
-	mov dh, 18
+	mov dl, 28
+	mov dh, 17
 	call GoToXY
 
 	mov edx, OFFSET PlayerText
 	call WriteString
 
 	mov dl, 68
-	mov dh, 18
+	mov dh, 17
 	call GoToXY
 
 	mov edx, OFFSET ComputerText
 	call WriteString
 
 	mov dl, 20
-	mov dh, 20
+	mov dh, 19
 	call GoToXY
 
 	mov edx, OFFSET TotalHealthText
@@ -901,7 +902,7 @@ GenerateUIMechanics PROC
 	call WriteDec
 
 	mov dl, 60
-	mov dh, 20
+	mov dh, 19
 	call GoToXY
 
 	mov edx, OFFSET TotalHealthText
@@ -910,7 +911,7 @@ GenerateUIMechanics PROC
 	call WriteDec
 
 	mov dl, 17
-	mov dh, 21
+	mov dh, 20
 	call GoToXY
 
 	mov edx, OFFSET ShipsRemainingText
@@ -918,7 +919,7 @@ GenerateUIMechanics PROC
 	call CalculatePlayerShipsRemaining
 
 	mov dl, 57
-	mov dh, 21
+	mov dh, 20
 	call GoToXY
 
 	mov edx, OFFSET ShipsRemainingText
@@ -926,9 +927,9 @@ GenerateUIMechanics PROC
 	call CalculateComputerShipsRemaining
 	
 	mov dl, 20
-	mov dh, 23
+	mov dh, 22
 	call GoToXY
-	mov eax, lightGreen
+	mov eax, lightmagenta
 	call SetTextColor
 	mov edx, OFFSET directionsMessage
 	call WriteString
@@ -939,6 +940,15 @@ GenerateUIMechanics PROC
 	mov dh, 0
 	call GoToXY
 
+	;mov dh, 0
+	;mov dl, 85
+	;mov eax, '|'
+	;mov ecx, 30
+	;Separate:
+	;	call GoToXY
+	;	call WriteChar
+	;	inc dh
+	;	loop Separate
 	ret
 GenerateUIMechanics ENDP
 
@@ -1034,7 +1044,7 @@ CalculatePlayerShipsRemaining PROC
 
 	PSRGreen:
 
-	mov eax, green
+	mov eax, lightgreen
 	call SetTextColor
 	mov eax, ebx
 	call WriteDec
@@ -1146,35 +1156,35 @@ PlacePlayerShips PROC
 	PlaceCarrier:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection1
 	call WriteString
 
 	mov dl, 20
-	mov dh, 25
+	mov dh, 24
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection2
 	call WriteString
 
 	mov dl, 20
-	mov dh, 26
+	mov dh, 25
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection3
 	call WriteString
 
 	mov dl, 20
-	mov dh, 27
+	mov dh, 26
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection4
 	call WriteString
 
 	mov dl, 20
-	mov dh, 28
+	mov dh, 27
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1190,35 +1200,35 @@ PlacePlayerShips PROC
 	PlaceBattleship:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection1
 	call WriteString
 
 	mov dl, 20
-	mov dh, 25
+	mov dh, 24
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection2
 	call WriteString
 
 	mov dl, 20
-	mov dh, 26
+	mov dh, 25
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection3
 	call WriteString
 
 	mov dl, 20
-	mov dh, 27
+	mov dh, 26
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection4
 	call WriteString
 
 	mov dl, 20
-	mov dh, 28
+	mov dh, 27
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1234,35 +1244,35 @@ PlacePlayerShips PROC
 	PlaceSubmarine:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection1
 	call WriteString
 
 	mov dl, 20
-	mov dh, 25
+	mov dh, 24
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection2
 	call WriteString
 
 	mov dl, 20
-	mov dh, 26
+	mov dh, 25
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection3
 	call WriteString
 
 	mov dl, 20
-	mov dh, 27
+	mov dh, 26
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection4
 	call WriteString
 
 	mov dl, 20
-	mov dh, 28
+	mov dh, 27
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1278,35 +1288,35 @@ PlacePlayerShips PROC
 	PlaceDestroyer:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection1
 	call WriteString
 
 	mov dl, 20
-	mov dh, 25
+	mov dh, 24
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection2
 	call WriteString
 
 	mov dl, 20
-	mov dh, 26
+	mov dh, 25
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection3
 	call WriteString
 
 	mov dl, 20
-	mov dh, 27
+	mov dh, 26
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection4
 	call WriteString
 
 	mov dl, 20
-	mov dh, 28
+	mov dh, 27
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1322,35 +1332,35 @@ PlacePlayerShips PROC
 	PlaceSweeper:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection1
 	call WriteString
 
 	mov dl, 20
-	mov dh, 25
+	mov dh, 24
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection2
 	call WriteString
 
 	mov dl, 20
-	mov dh, 26
+	mov dh, 25
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection3
 	call WriteString
 
 	mov dl, 20
-	mov dh, 27
+	mov dh, 26
 	call GoToXY
 
 	mov edx, OFFSET shipPlacementDirection4
 	call WriteString
 
 	mov dl, 20
-	mov dh, 28
+	mov dh, 27
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1366,7 +1376,7 @@ PlacePlayerShips PROC
 	AllShipsPlaced:
 
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 
 	mov edx, OFFSET playerShipPlacementComplete
@@ -1792,7 +1802,6 @@ PlaceComputerShips PROC
 	call PlaceComputerSubmarine
 	call PlaceComputerDestroyer
 	call PlaceComputerSweeper
-	call PrintComputerArrays
 	
 	mov dl, 20
 	mov dh, 24
