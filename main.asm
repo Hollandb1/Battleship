@@ -116,8 +116,8 @@ playerTurnDirection2 BYTE "To attack, click a coordinate on the computer grid.",
 computerTurnDirection1 BYTE "Alert! Computer is attacking!", 0
 computerTurnDirection2 BYTE "Brace yourselves!", 0
 
-playerTurnResult BYTE "Player attack resulted in a ", 0
-computerTurnResult BYTE "Computer attack resulted in a ", 0
+playerTurnResult BYTE "Player attack was a ", 0
+computerTurnResult BYTE "Computer attack was a ", 0
 hitResult BYTE "hit!", 0
 missResult BYTE "miss.", 0
 
@@ -218,6 +218,11 @@ ShipPlacementHorizontal BYTE "Horizontal Placement: Right Click", 0
 TotalHealthText BYTE "Total Health: ", 0
 ShipsRemainingText BYTE "   Ships Remaining: ", 0
 
+Log BYTE "Log", 0
+LogUnder BYTE "--------", 0
+LogBegin BYTE 3
+LogCount BYTE 0
+
 ;=====================
 ;=== Computer Turn ===
 ;=====================
@@ -228,24 +233,23 @@ LastTurnOutcome BYTE 0			;0 miss, 1 initial hit, 2 hit streak
 CurrentDirection BYTE ?
 ComputerTarget BYTE ?
 HitStreak BYTE 0
+CallExplosion BYTE 0
 
 .code
 main PROC
 
 	call Randomize
 
-	call GenerateSplashScreen
-	call GenerateIntroductionScreen
+	;call GenerateSplashScreen
+	;call GenerateIntroductionScreen
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
 
-	mov edx, OFFSET ShipPlacementTitle
-	call WriteString
-	call Crlf
-
 	call PlacePlayerShips
 	call PlaceComputerShips
+
+
 	TurnRotation:
 
 	call PlayerTurn
@@ -948,8 +952,17 @@ GenerateUIMechanics PROC
 	mov dh, 0
 	call GoToXY
 
-	;mov dh, 0
-	;mov dl, 85
+	mov dh, 1
+	mov dl, 102
+	call gotoxy
+	mov edx, OFFSET Log
+	call writeString
+
+	mov dh, 2
+	mov dl, 99
+	call gotoxy
+	mov edx, OFFSET LogUnder
+	call writeString
 	;mov eax, '|'
 	;mov ecx, 30
 	;Separate:
@@ -2561,14 +2574,7 @@ RegisterPlayerHit PROC
 	dec al
 	mov ComputerHealth, al
 	
-	mov dl, 20
-	mov dh, 25
-	call GoToXY
-	mov edx, OFFSET clearLine
-	call WriteString
-	mov dl, 20
-	mov dh, 25
-	call GoToXY
+	call GoToLog
 	mov edx, OFFSET playerTurnResult
 	call WriteString
 	mov eax, lightRed
@@ -2591,17 +2597,10 @@ RegisterPlayerHit ENDP
 
 RegisterPlayerMiss PROC
 
-	mov dl, 20
-	mov dh, 25
-	call GoToXY
-	mov edx, OFFSET clearLine
-	call WriteString
-	mov dl, 20
-	mov dh, 25
-	call GoToXY
+	call GoToLog
 	mov edx, OFFSET playerTurnResult
 	call WriteString
-	mov eax, lightCyan
+	mov eax, lightGreen
 	call SetTextColor
 	mov edx, OFFSET missResult
 	call WriteString
@@ -2668,6 +2667,7 @@ movzx eax, LastTurnOutcome
 			je RandomTurn
 
 			cHit:
+				
 				mov al, HitStreak					;hit counter
 				inc al
 				mov HitStreak, al
@@ -2677,6 +2677,18 @@ movzx eax, LastTurnOutcome
 
 				mov al, 88
 				mov [edi], al
+
+
+				call GoToLog
+				mov edx, OFFSET ComputerTurnResult
+				call WriteString
+				mov eax, lightRed
+				call SetTextColor
+				mov edx, OFFSET hitResult
+				call WriteString
+				mov eax, white
+				call SetTextColor
+
 				jmp redraw
 
 			cMiss:
@@ -2687,17 +2699,30 @@ movzx eax, LastTurnOutcome
 				skip:
 				mov al, 79
 				mov [edi], al
+				
+				call GoToLog
+				mov edx, OFFSET ComputerTurnResult
+				call WriteString
+				mov eax, lightGreen
+				call SetTextColor
+				mov edx, OFFSET missResult
+				call WriteString
+				mov eax, white
+				call SetTextColor
 
 			redraw:
 				call GenerateMaps
 				call GenerateUIMechanics
+				
+				cmp callExplosion, 1
+				jne return
+				call PlayerShipSunk
+				mov callExplosion, 0
+				return:
 			ret
 ComputerTurn ENDP
 
 SmartComputerTurn PROC			;6 23/15 41
-
-	mov eax, 'S'
-	call writeChar
 
 	cmp LastTurnOutcome, 1					;begin streak
 	je left
@@ -2859,9 +2884,10 @@ CheckComputerTurnHit PROC
 	mov al, PlayerSweeperHealth
 	dec al
 	mov PlayerSweeperHealth, al
-	cmp al, 0										;if it sunk, set computer turn back to random
+	cmp al, 0									;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
+	mov callExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerBHit:
@@ -2872,6 +2898,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
+	mov callExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerCHit:
@@ -2882,6 +2909,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
+	mov callExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerDHit:
@@ -2892,6 +2920,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
+	mov callExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerUHit:
@@ -2902,6 +2931,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
+	mov callExplosion, 1
 	jmp HealthAdjusted
 
 	HealthAdjusted:
@@ -3138,6 +3168,8 @@ PlayerShipSunk PROC
 
 	call Clrscr
 
+	mov LogCount, 0
+
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -3348,6 +3380,8 @@ ComputerShipSunk PROC
 
 	call Clrscr
 
+	mov LogCount, 0
+
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -3431,5 +3465,18 @@ ComputerWin PROC
 	call SetTextColor
 	ret
 ComputerWin ENDP
+GoToLog PROC
+mov ah, LogBegin
+mov al, LogCount
 
+add ah, al
+mov dh, ah
+mov dl, 88
+call GoToXY
+
+inc al
+mov LogCount, al
+
+ret
+GoTOLog ENDP
 END main
