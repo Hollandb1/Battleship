@@ -98,6 +98,7 @@ intro6 BYTE "You will have view of another grid, the computer grid.", 0
 intro7 BYTE "This will only show where you have struck in enemy waters.", 0
 intro8 BYTE "The goal of the game is to sink every ship of your enemy.", 0
 intro9 BYTE "Sink all five? You win. You don't? You lose. Good luck Captain!", 0
+intro10 BYTE "Press any key to continue... ", 0
 
 shipPlacementDirection1 BYTE "Ship Placement", 0
 shipPlacementDirection2 BYTE "To place a ship, click a coordinate on the grid.", 0
@@ -232,7 +233,7 @@ main PROC
 	call Randomize
 
 	call GenerateSplashScreen
-	;call GenerateIntroductionScreen
+	call GenerateIntroductionScreen
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -639,8 +640,13 @@ GenerateIntroductionScreen PROC
 	mov edx, OFFSET intro9
 	call WriteString
 
-	mov eax, 16000
-	call Delay
+	mov dh, 18
+	mov dl, 40
+	call GoToXY
+
+	mov edx, OFFSET intro10
+	call WriteString
+	call ReadChar
 
 	call Clrscr
 
@@ -1118,7 +1124,7 @@ CalculateComputerShipsRemaining PROC
 
 	CSRGreen:
 
-	mov eax, green
+	mov eax, lightgreen
 	call SetTextColor
 	mov eax, ebx
 	call WriteDec
