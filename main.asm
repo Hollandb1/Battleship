@@ -112,7 +112,9 @@ playerShipPlacementComplete BYTE "All ships have been placed. Prepare for battle
 computerShipPlacementComplete BYTE "The computer is ready for battle.", 0
 
 playerTurnDirection1 BYTE "Time to attack!", 0
-playerTurnDirection2 BYTE "To attack, click a coordinate on the computer grid."
+playerTurnDirection2 BYTE "To attack, click a coordinate on the computer grid.", 0
+computerTurnDirection1 BYTE "Alert! Computer is attacking!", 0
+computerTurnDirection2 BYTE "Brace yourselves!", 0
 
 playerTurnResult BYTE "Player attack resulted in a ", 0
 computerTurnResult BYTE "Computer attack resulted in a ", 0
@@ -2247,6 +2249,17 @@ PrintArray ENDP
 
 PlayerTurn PROC
 
+mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET playerTurnDirection1
+	call WriteString
+	mov dl, 20
+	mov dh, 24
+	call GoToXY
+	mov edx, OFFSET playerTurnDirection2
+	call WriteString
+	
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
 	call TranslateColumnCoordinate
@@ -2547,6 +2560,23 @@ RegisterPlayerHit PROC
 	mov al, ComputerHealth
 	dec al
 	mov ComputerHealth, al
+	
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET playerTurnResult
+	call WriteString
+	mov eax, lightRed
+	call SetTextColor
+	mov edx, OFFSET hitResult
+	call WriteString
+	mov eax, white
+	call SetTextColor
 
 	mov edi, OFFSET ComputerMapViewable
 	add edi, mapIndex
@@ -2560,6 +2590,24 @@ RegisterPlayerHit PROC
 RegisterPlayerHit ENDP
 
 RegisterPlayerMiss PROC
+
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET playerTurnResult
+	call WriteString
+	mov eax, lightCyan
+	call SetTextColor
+	mov edx, OFFSET missResult
+	call WriteString
+	mov eax, white
+	call SetTextColor
+
 
 	mov edi, OFFSET ComputerMapViewable
 	add edi, mapIndex
