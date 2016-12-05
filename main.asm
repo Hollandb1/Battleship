@@ -102,8 +102,9 @@ intro10 BYTE "Press any key to continue... ", 0
 
 shipPlacementDirection1 BYTE "Ship Placement", 0
 shipPlacementDirection2 BYTE "To place a ship, click a coordinate on the grid.", 0
-shipPlacementDirection3 BYTE "Left Click: Vertical Placement	Right Click: Horizontal Placement", 0
-shipPlacementDirection4 BYTE "All ship placements are final, so plan ahead Captain!", 0
+shipPlacementDirection3 BYTE "Left Click: Vertical Placement", 0
+shipPlacementDirection4 BYTE "Right Click: Horizontal Placement", 0
+shipPlacementDirection5 BYTE "All ship placements are final, so plan ahead Captain!", 0
 shipToPlace BYTE "Ship to place: ", 0
 ShipPlacementError BYTE "Invalid placement. Please try again."
 ShipPlaced BYTE "Ship has been placed", 0
@@ -1208,6 +1209,13 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
+	mov edx, OFFSET shipPlacementDirection5
+	call WriteString
+
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
+
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1250,6 +1258,13 @@ PlacePlayerShips PROC
 
 	mov dl, 20
 	mov dh, 27
+	call GoToXY
+
+	mov edx, OFFSET shipPlacementDirection5
+	call WriteString
+
+	mov dl, 20
+	mov dh, 28
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1296,6 +1311,13 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
+	mov edx, OFFSET shipPlacementDirection5
+	call WriteString
+
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
+
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1340,6 +1362,13 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
+	mov edx, OFFSET shipPlacementDirection5
+	call WriteString
+
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
+
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1382,6 +1411,13 @@ PlacePlayerShips PROC
 
 	mov dl, 20
 	mov dh, 27
+	call GoToXY
+
+	mov edx, OFFSET shipPlacementDirection5
+	call WriteString
+
+	mov dl, 20
+	mov dh, 28
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1753,6 +1789,9 @@ CheckVerticalShipPlacementCollision PROC
 	ShipPlacementErrorVertical:
 
 	mov edx, OFFSET ShipPlacementErrorMessage
+	mov dl, 20
+	mov dh, 29
+	call GoToXY
 	call WriteString
 
 	mov al, ShipsPlaced
@@ -1795,6 +1834,9 @@ CheckHorizontalShipPlacementCollision PROC
 	ShipPlacementErrorHorizontal:
 
 	mov edx, OFFSET ShipPlacementErrorMessage
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
 	call WriteString
 
 	mov al, ShipsPlaced
