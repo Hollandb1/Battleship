@@ -240,8 +240,8 @@ main PROC
 
 	call Randomize
 
-	;call GenerateSplashScreen
-	;call GenerateIntroductionScreen
+	call GenerateSplashScreen
+	call GenerateIntroductionScreen
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -1022,14 +1022,14 @@ CalculatePlayerShipsRemaining PROC
 
 	PUH:
 
-	mov al, PlayerBattleshipHealth
+	mov al, PlayerDestroyerHealth
 	cmp al, 0
 	je PDH
 	inc ebx
 
 	PDH:
 
-	mov al, PlayerBattleshipHealth
+	mov al, PlayerSubmarineHealth
 	cmp al, 0
 	je PSH
 	inc ebx
@@ -1096,14 +1096,14 @@ CalculateComputerShipsRemaining PROC
 
 	CUH:
 
-	mov al, ComputerBattleshipHealth
+	mov al, ComputerSubmarineHealth
 	cmp al, 0
 	je CDH
 	inc ebx
 
 	CDH:
 
-	mov al, ComputerBattleshipHealth
+	mov al, ComputerDestroyerHealth
 	cmp al, 0
 	je CSH
 	inc ebx
@@ -2262,7 +2262,12 @@ PrintArray ENDP
 
 PlayerTurn PROC
 
-mov dl, 20
+	mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
 	mov dh, 23
 	call GoToXY
 	mov edx, OFFSET playerTurnDirection1
@@ -2529,7 +2534,7 @@ CheckPlayerAttack PROC
 		mov eax, 0
 		mov al, ComputerSweeperHealth
 		dec al
-		mov ComputerSweeperHealth, 0
+		mov ComputerSweeperHealth, al
 
 		cmp al, 0
 		je ComputerSweeperSunk
@@ -3478,5 +3483,5 @@ inc al
 mov LogCount, al
 
 ret
-GoTOLog ENDP
+GoToLog ENDP
 END main
