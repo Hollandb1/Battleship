@@ -1882,7 +1882,7 @@ PlaceComputerShips PROC
 	call PlaceComputerSweeper
 	
 	mov dl, 20
-	mov dh, 24
+	mov dh, 23
 	call GoToXY
 	mov edx, OFFSET computerShipPlacementComplete
 	call WriteString
@@ -2319,21 +2319,17 @@ PrintArray ENDP
 
 PlayerTurn PROC
 
-	mov dl, 20
-	mov dh, 23
-	call GoToXY
-	mov edx, OFFSET clearLine
-	call WriteString
+	call ClearDirections
+	
 	mov dl, 20
 	mov dh, 23
 	call GoToXY
 	mov edx, OFFSET playerTurnDirection1
 	call WriteString
-	mov dl, 20
-	mov dh, 24
-	call GoToXY
-	mov edx, OFFSET clearLine
-	call WriteString
+
+	mov eax, 1000
+	call Delay
+
 	mov dl, 20
 	mov dh, 24
 	call GoToXY
@@ -2348,6 +2344,10 @@ PlayerTurn PROC
 
 	call GenerateMaps
 	call GenerateUIMechanics
+
+	mov eax, 1000
+	call Delay
+
 
 	ret
 PlayerTurn ENDP
@@ -2640,7 +2640,15 @@ RegisterPlayerHit PROC
 	mov al, ComputerHealth
 	dec al
 	mov ComputerHealth, al
-	
+
+	mov edi, OFFSET ComputerMapViewable
+	add edi, mapIndex
+	sub edi, 40
+
+	mov bl, 88
+
+	mov [edi], bl
+
 	mov dl, 20
 	mov dh, 25
 	call GoToXY
@@ -2658,18 +2666,18 @@ RegisterPlayerHit PROC
 	mov eax, white
 	call SetTextColor
 
-	mov edi, OFFSET ComputerMapViewable
-	add edi, mapIndex
-	sub edi, 40
-
-	mov bl, 88
-
-	mov [edi], bl
-
 	ret
 RegisterPlayerHit ENDP
 
 RegisterPlayerMiss PROC
+
+	mov edi, OFFSET ComputerMapViewable
+	add edi, mapIndex
+	sub edi, 40
+
+	mov bl, 79
+
+	mov [edi], bl
 
 	mov dl, 20
 	mov dh, 25
@@ -2688,15 +2696,6 @@ RegisterPlayerMiss PROC
 	mov eax, white
 	call SetTextColor
 
-
-	mov edi, OFFSET ComputerMapViewable
-	add edi, mapIndex
-	sub edi, 40
-
-	mov bl, 79
-
-	mov [edi], bl
-
 	ret
 RegisterPlayerMiss ENDP
 
@@ -2711,15 +2710,24 @@ ComputerTurn PROC
 	mov edx, OFFSET clearLine
 	call WriteString
 	mov dl, 20
-	mov dh, 23
-	call GoToXY
-	mov edx, OFFSET computerTurnDirection1
-	call WriteString
-	mov dl, 20
 	mov dh, 24
 	call GoToXY
 	mov edx, OFFSET clearLine
 	call WriteString
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET computerTurnDirection1
+	call WriteString
+
+	mov eax, 1000
+	call Delay
+
 	mov dl, 20
 	mov dh, 24
 	call GoToXY
@@ -2784,12 +2792,12 @@ movzx eax, LastTurnOutcome
 				call CheckComputerTurnHit
 
 				mov dl, 20
-				mov dh, 26
+				mov dh, 25
 				call GoToXY
 				mov edx, OFFSET clearLine
 				call WriteString
 				mov dl, 20
-				mov dh, 26
+				mov dh, 25
 				call GoToXY
 				mov edx, OFFSET computerTurnResult
 				call WriteString
@@ -2812,12 +2820,12 @@ movzx eax, LastTurnOutcome
 				skip:
 
 				mov dl, 20
-				mov dh, 26
+				mov dh, 25
 				call GoToXY
 				mov edx, OFFSET clearLine
 				call WriteString
 				mov dl, 20
-				mov dh, 26
+				mov dh, 25
 				call GoToXY
 				mov edx, OFFSET computerTurnResult
 				call WriteString
@@ -2832,6 +2840,7 @@ movzx eax, LastTurnOutcome
 				mov [edi], al
 
 			redraw:
+
 				call GenerateMaps
 				call GenerateUIMechanics
 
@@ -2841,13 +2850,13 @@ movzx eax, LastTurnOutcome
 				mov callExplosion, 0
 
 				return:
+
+				mov eax, 1000
+				call Delay
 			ret
 ComputerTurn ENDP
 
 SmartComputerTurn PROC			;6 23/15 41
-
-	mov eax, 'S'
-	call writeChar
 
 	cmp LastTurnOutcome, 1					;begin streak
 	je left
