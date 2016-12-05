@@ -34,7 +34,6 @@ Carrier13 BYTE " \______________________________________________________________
 author1 BYTE "Created By:"
 author2 BYTE "Brandie Holland", 0
 author3 BYTE "Andrew Ryan", 0
-author4 BYTE "Jiajun Chen", 0
 
 Victory1 BYTE " __     _____ ____ _____ ___  ______   ___ ", 0
 Victory2 BYTE " \ \   / /_ _/ ___|_   _/ _ \|  _ \ \ / / |", 0
@@ -87,6 +86,7 @@ ComputerShipSunkMessage BYTE "Computer ship sunk!", 0
 
 directionsMessage BYTE "Directions:", 0
 clearLine BYTE "                                                                                                  ", 0
+clearSpace BYTE "     ", 0
 Line BYTE "|", 0
 
 intro1 BYTE "Welcome to BATTLESHIP!", 0
@@ -102,9 +102,8 @@ intro10 BYTE "Press any key to continue... ", 0
 
 shipPlacementDirection1 BYTE "Ship Placement", 0
 shipPlacementDirection2 BYTE "To place a ship, click a coordinate on the grid.", 0
-shipPlacementDirection3 BYTE "Left Click: Vertical Placement", 0
-shipPlacementDirection4 BYTE "Right Click: Horizontal Placement", 0
-shipPlacementDirection5 BYTE "All ship placements are final, so plan ahead Captain!", 0
+shipPlacementDirection3 BYTE "Left Click: Vertical Placement	Right Click: Horizontal Placement", 0
+shipPlacementDirection4 BYTE "All ship placements are final, so plan ahead Captain!", 0
 shipToPlace BYTE "Ship to place: ", 0
 ShipPlacementError BYTE "Invalid placement. Please try again."
 ShipPlaced BYTE "Ship has been placed", 0
@@ -117,8 +116,8 @@ playerTurnDirection2 BYTE "To attack, click a coordinate on the computer grid.",
 computerTurnDirection1 BYTE "Alert! Computer is attacking!", 0
 computerTurnDirection2 BYTE "Brace yourselves!", 0
 
-playerTurnResult BYTE "Player attack was a ", 0
-computerTurnResult BYTE "Computer attack was a ", 0
+playerTurnResult BYTE "Player attack resulted in a ", 0
+computerTurnResult BYTE "Computer attack resulted in a ", 0
 hitResult BYTE "hit!", 0
 missResult BYTE "miss.", 0
 
@@ -219,11 +218,6 @@ ShipPlacementHorizontal BYTE "Horizontal Placement: Right Click", 0
 TotalHealthText BYTE "Total Health: ", 0
 ShipsRemainingText BYTE "   Ships Remaining: ", 0
 
-Log BYTE "Log", 0
-LogUnder BYTE "--------", 0
-LogBegin BYTE 3
-LogCount BYTE 0
-
 ;=====================
 ;=== Computer Turn ===
 ;=====================
@@ -249,7 +243,6 @@ main PROC
 
 	call PlacePlayerShips
 	call PlaceComputerShips
-
 
 	TurnRotation:
 
@@ -662,7 +655,7 @@ GenerateIntroductionScreen ENDP
 
 GenerateGameTitle PROC
 
-	mov eax, white
+	mov eax, lightGray
 	call SetTextColor
 
 	mov dl, 38
@@ -689,6 +682,9 @@ GenerateGameTitle PROC
 	mov dl, 0
 	mov dh, 0
 	call GoToXY
+
+	mov eax, white
+	call SetTextColor
 
 	call Crlf
 
@@ -733,7 +729,7 @@ GenerateMaps PROC
 
 			cmp al, 79
 			jne CheckPlayerHit
-			mov eax, lightGreen
+			mov eax, white
 			call SetTextColor
 			mov eax, 79
 			call WriteChar
@@ -846,7 +842,7 @@ GenerateMaps PROC
 
 			cmp al, 79
 			jne CheckComputerHit
-			mov eax, lightGreen
+			mov eax, white
 			call SetTextColor
 			mov eax, 79
 			call WriteChar
@@ -905,6 +901,14 @@ GenerateUIMechanics PROC
 	mov edx, OFFSET ComputerText
 	call WriteString
 
+	
+	mov dl, 32
+	mov dh, 20
+	call GoToXY
+
+	mov edx, OFFSET clearSpace
+	call WriteString
+
 	mov dl, 20
 	mov dh, 19
 	call GoToXY
@@ -913,6 +917,13 @@ GenerateUIMechanics PROC
 	call WriteString
 	mov al, PlayerHealth
 	call WriteDec
+
+	mov dl, 78
+	mov dh, 20
+	call GoToXY
+
+	mov edx, OFFSET clearSpace
+	call WriteString
 
 	mov dl, 60
 	mov dh, 19
@@ -942,7 +953,7 @@ GenerateUIMechanics PROC
 	mov dl, 20
 	mov dh, 22
 	call GoToXY
-	mov eax, lightmagenta
+	mov eax, lightGreen
 	call SetTextColor
 	mov edx, OFFSET directionsMessage
 	call WriteString
@@ -953,28 +964,15 @@ GenerateUIMechanics PROC
 	mov dh, 0
 	call GoToXY
 
-	mov dh, 1
-	mov dl, 102
-	call gotoxy
-	mov edx, OFFSET Log
-	call writeString
-
-	mov dh, 2
-	mov dl, 99
-	call gotoxy
-	mov edx, OFFSET LogUnder
-	call writeString
-	;mov eax, '|'
-	;mov ecx, 30
-	;Separate:
-	;	call GoToXY
-	;	call WriteChar
-	;	inc dh
-	;	loop Separate
 	ret
 GenerateUIMechanics ENDP
 
 ClearDirections PROC
+	mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
 	mov dl, 20
 	mov dh, 24
 	call GoToXY
@@ -1023,14 +1021,14 @@ CalculatePlayerShipsRemaining PROC
 
 	PUH:
 
-	mov al, PlayerDestroyerHealth
+	mov al, PlayerSubmarineHealth
 	cmp al, 0
 	je PDH
 	inc ebx
 
 	PDH:
 
-	mov al, PlayerSubmarineHealth
+	mov al, PlayerDestroyerHealth
 	cmp al, 0
 	je PSH
 	inc ebx
@@ -1157,24 +1155,6 @@ PlacePlayerShips PROC
 
 	mov eax, 0
 
-	mov al, ShipsPlaced
-
-	cmp al, 0
-	je PlaceCarrier
-
-	cmp al, 1
-	je PlaceBattleship
-
-	cmp al, 2
-	je PlaceSubmarine
-
-	cmp al, 3
-	je PlaceDestroyer
-
-	cmp al, 4
-	je PlaceSweeper
-	jge AllShipsPlaced
-
 	PlaceCarrier:
 
 	mov dl, 20
@@ -1207,13 +1187,6 @@ PlacePlayerShips PROC
 
 	mov dl, 20
 	mov dh, 27
-	call GoToXY
-
-	mov edx, OFFSET shipPlacementDirection5
-	call WriteString
-
-	mov dl, 20
-	mov dh, 28
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1260,13 +1233,6 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
-	mov edx, OFFSET shipPlacementDirection5
-	call WriteString
-
-	mov dl, 20
-	mov dh, 28
-	call GoToXY
-
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1309,13 +1275,6 @@ PlacePlayerShips PROC
 
 	mov dl, 20
 	mov dh, 27
-	call GoToXY
-
-	mov edx, OFFSET shipPlacementDirection5
-	call WriteString
-
-	mov dl, 20
-	mov dh, 28
 	call GoToXY
 
 	mov edx, OFFSET shipToPlace
@@ -1362,13 +1321,6 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
-	mov edx, OFFSET shipPlacementDirection5
-	call WriteString
-
-	mov dl, 20
-	mov dh, 28
-	call GoToXY
-
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1413,13 +1365,6 @@ PlacePlayerShips PROC
 	mov dh, 27
 	call GoToXY
 
-	mov edx, OFFSET shipPlacementDirection5
-	call WriteString
-
-	mov dl, 20
-	mov dh, 28
-	call GoToXY
-
 	mov edx, OFFSET shipToPlace
 	call WriteString
 
@@ -1449,6 +1394,8 @@ PlacePlayerShips ENDP
 
 
 PlacePlayerCarrier PROC
+
+	RetryCarrier:
 
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
@@ -1492,19 +1439,21 @@ PlacePlayerCarrier PROC
 
 	CarrierPlaced:
 
-	call GenerateMaps
-	call GenerateUIMechanics
-
 	mov eax, 0
 
 	mov al, ShipsPlaced
 	inc al
 	mov ShipsPlaced, al
 
+	call GenerateMaps
+	call GenerateUIMechanics
+
 	ret
 PlacePlayerCarrier ENDP
 
 PlacePlayerBattleship PROC
+
+	RetryBattleship:
 
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
@@ -1520,6 +1469,9 @@ PlacePlayerBattleship PROC
 
 	mov eax, 4
 	call CheckVerticalShipPlacementCollision
+
+	cmp ebx, 1
+	je RetryBattleship
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -1541,6 +1493,9 @@ PlacePlayerBattleship PROC
 	mov eax, 4
 	call CheckHorizontalShipPlacementCollision
 
+	cmp ebx, 1
+	je RetryBattleship
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -1556,19 +1511,23 @@ PlacePlayerBattleship PROC
 
 	BattleshipPlaced:
 
-	call GenerateMaps
-	call GenerateUIMechanics
-
 	mov eax, 0
 
 	mov al, ShipsPlaced
 	inc al
 	mov ShipsPlaced, al
 
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	mov ebx, 0
+
 	ret
 PlacePlayerBattleship ENDP
 
 PlacePlayerSubmarine PROC
+
+	RetrySubmarine:
 
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
@@ -1584,6 +1543,9 @@ PlacePlayerSubmarine PROC
 
 	mov eax, 3
 	call CheckVerticalShipPlacementCollision
+
+	cmp ebx, 1
+	je RetrySubmarine
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -1604,6 +1566,9 @@ PlacePlayerSubmarine PROC
 	mov eax, 3
 	call CheckHorizontalShipPlacementCollision
 
+	cmp ebx, 1
+	je RetrySubmarine
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -1619,19 +1584,23 @@ PlacePlayerSubmarine PROC
 
 	SubmarinePlaced:
 
-	call GenerateMaps
-	call GenerateUIMechanics
-
 	mov eax, 0
 
 	mov al, ShipsPlaced
 	inc al
 	mov ShipsPlaced, al
 
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	mov ebx, 0
+
 	ret
 PlacePlayerSubmarine ENDP
 
 PlacePlayerDestroyer PROC
+
+	RetryDestroyer:
 
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
@@ -1647,6 +1616,9 @@ PlacePlayerDestroyer PROC
 
 	mov eax, 3
 	call CheckVerticalShipPlacementCollision
+
+	cmp ebx, 1
+	je RetryDestroyer
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -1667,6 +1639,9 @@ PlacePlayerDestroyer PROC
 	mov eax, 3
 	call CheckHorizontalShipPlacementCollision
 
+	cmp ebx, 1
+	je RetryDestroyer
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -1681,19 +1656,23 @@ PlacePlayerDestroyer PROC
 
 	DestroyerPlaced:
 
-	call GenerateMaps
-	call GenerateUIMechanics
-
 	mov eax, 0
 
 	mov al, ShipsPlaced
 	inc al
 	mov ShipsPlaced, al
 
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	mov ebx, 0
+
 	ret
 PlacePlayerDestroyer ENDP
 
 PlacePlayerSweeper PROC
+
+	RetrySweeper:
 
 	call GetMouseCoordinates
 	call TranslateRowCoordinate
@@ -1709,6 +1688,9 @@ PlacePlayerSweeper PROC
 
 	mov eax, 2
 	call CheckVerticalShipPlacementCollision
+
+	cmp ebx, 1
+	je RetrySweeper
 
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
@@ -1729,6 +1711,9 @@ PlacePlayerSweeper PROC
 	mov eax, 2
 	call CheckHorizontalShipPlacementCollision
 
+	cmp ebx, 1
+	je RetrySweeper
+
 	mov edi, OFFSET PlayerMap
 	add edi, mapIndex
 
@@ -1743,13 +1728,17 @@ PlacePlayerSweeper PROC
 
 	SweeperPlaced:
 
-	call GenerateMaps
-	call GenerateUIMechanics
-
 	mov eax, 0
 
 	mov al, 5
 	mov ShipsPlaced, 5
+
+	call GenerateMaps
+	call GenerateUIMechanics
+
+	call ClearDirections
+
+	mov ebx, 0
 
 	ret
 PlacePlayerSweeper ENDP
@@ -1788,17 +1777,30 @@ CheckVerticalShipPlacementCollision PROC
 
 	ShipPlacementErrorVertical:
 
-	mov edx, OFFSET ShipPlacementErrorMessage
 	mov dl, 20
-	mov dh, 29
+	mov dh, 28
 	call GoToXY
+	mov edx, OFFSET clearLine
 	call WriteString
+
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
+
+	mov eax, lightRed
+	call SetTextColor
+
+	mov edx, OFFSET ShipPlacementErrorMessage
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
+	mov ebx, 1
 
 	mov al, ShipsPlaced
 	cmp al, 5
 	jge ValidVerticalPlacement
-
-	call PlacePlayerShips
 
 	ValidVerticalPlacement:
 
@@ -1833,17 +1835,30 @@ CheckHorizontalShipPlacementCollision PROC
 
 	ShipPlacementErrorHorizontal:
 
-	mov edx, OFFSET ShipPlacementErrorMessage
 	mov dl, 20
 	mov dh, 28
 	call GoToXY
+	mov edx, OFFSET clearLine
 	call WriteString
+
+	mov dl, 20
+	mov dh, 28
+	call GoToXY
+
+	mov eax, lightRed
+	call SetTextColor
+
+	mov edx, OFFSET ShipPlacementErrorMessage
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
+	mov ebx, 1
 
 	mov al, ShipsPlaced
 	cmp al, 5
 	jge ValidHorizontalPlacement
-
-	call PlacePlayerShips
 
 	ValidHorizontalPlacement:
 
@@ -2317,6 +2332,11 @@ PlayerTurn PROC
 	mov dl, 20
 	mov dh, 24
 	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 24
+	call GoToXY
 	mov edx, OFFSET playerTurnDirection2
 	call WriteString
 	
@@ -2621,7 +2641,14 @@ RegisterPlayerHit PROC
 	dec al
 	mov ComputerHealth, al
 	
-	call GoToLog
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
 	mov edx, OFFSET playerTurnResult
 	call WriteString
 	mov eax, lightRed
@@ -2644,10 +2671,17 @@ RegisterPlayerHit ENDP
 
 RegisterPlayerMiss PROC
 
-	call GoToLog
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 25
+	call GoToXY
 	mov edx, OFFSET playerTurnResult
 	call WriteString
-	mov eax, lightGreen
+	mov eax, lightCyan
 	call SetTextColor
 	mov edx, OFFSET missResult
 	call WriteString
@@ -2667,6 +2701,34 @@ RegisterPlayerMiss PROC
 RegisterPlayerMiss ENDP
 
 ComputerTurn PROC
+
+	mov eax, lightRed
+	call SetTextColor
+
+	mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 23
+	call GoToXY
+	mov edx, OFFSET computerTurnDirection1
+	call WriteString
+	mov dl, 20
+	mov dh, 24
+	call GoToXY
+	mov edx, OFFSET clearLine
+	call WriteString
+	mov dl, 20
+	mov dh, 24
+	call GoToXY
+	mov edx, OFFSET computerTurnDirection2
+	call WriteString
+
+	mov eax, white
+	call SetTextColor
+
 call Pause2
 movzx eax, LastTurnOutcome
 
@@ -2714,7 +2776,6 @@ movzx eax, LastTurnOutcome
 			je RandomTurn
 
 			cHit:
-				
 				mov al, HitStreak					;hit counter
 				inc al
 				mov HitStreak, al
@@ -2722,12 +2783,15 @@ movzx eax, LastTurnOutcome
 				call saveHitInfo
 				call CheckComputerTurnHit
 
-				mov al, 88
-				mov [edi], al
-
-
-				call GoToLog
-				mov edx, OFFSET ComputerTurnResult
+				mov dl, 20
+				mov dh, 26
+				call GoToXY
+				mov edx, OFFSET clearLine
+				call WriteString
+				mov dl, 20
+				mov dh, 26
+				call GoToXY
+				mov edx, OFFSET computerTurnResult
 				call WriteString
 				mov eax, lightRed
 				call SetTextColor
@@ -2736,6 +2800,8 @@ movzx eax, LastTurnOutcome
 				mov eax, white
 				call SetTextColor
 
+				mov al, 88
+				mov [edi], al
 				jmp redraw
 
 			cMiss:
@@ -2744,32 +2810,44 @@ movzx eax, LastTurnOutcome
 				mov LastTurnOutcome, 3
 
 				skip:
-				mov al, 79
-				mov [edi], al
-				
-				call GoToLog
-				mov edx, OFFSET ComputerTurnResult
+
+				mov dl, 20
+				mov dh, 26
+				call GoToXY
+				mov edx, OFFSET clearLine
 				call WriteString
-				mov eax, lightGreen
+				mov dl, 20
+				mov dh, 26
+				call GoToXY
+				mov edx, OFFSET computerTurnResult
+				call WriteString
+				mov eax, lightCyan
 				call SetTextColor
 				mov edx, OFFSET missResult
 				call WriteString
 				mov eax, white
 				call SetTextColor
 
+				mov al, 79
+				mov [edi], al
+
 			redraw:
 				call GenerateMaps
 				call GenerateUIMechanics
-				
+
 				cmp callExplosion, 1
 				jne return
 				call PlayerShipSunk
 				mov callExplosion, 0
+
 				return:
 			ret
 ComputerTurn ENDP
 
 SmartComputerTurn PROC			;6 23/15 41
+
+	mov eax, 'S'
+	call writeChar
 
 	cmp LastTurnOutcome, 1					;begin streak
 	je left
@@ -2931,10 +3009,10 @@ CheckComputerTurnHit PROC
 	mov al, PlayerSweeperHealth
 	dec al
 	mov PlayerSweeperHealth, al
-	cmp al, 0									;if it sunk, set computer turn back to random
+	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
-	mov callExplosion, 1
+	mov CallExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerBHit:
@@ -2945,7 +3023,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
-	mov callExplosion, 1
+	mov CallExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerCHit:
@@ -2956,7 +3034,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
-	mov callExplosion, 1
+	mov CallExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerDHit:
@@ -2967,7 +3045,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
-	mov callExplosion, 1
+	mov CallExplosion, 1
 	jmp HealthAdjusted
 
 	PlayerUHit:
@@ -2978,7 +3056,7 @@ CheckComputerTurnHit PROC
 	cmp al, 0										;if it sunk, set computer turn back to random
 	jne HealthAdjusted
 	mov HitStreak, 0
-	mov callExplosion, 1
+	mov CallExplosion, 1
 	jmp HealthAdjusted
 
 	HealthAdjusted:
@@ -2989,6 +3067,7 @@ CheckComputerTurnHit PROC
 
 	ret
 CheckComputerTurnHit ENDP
+
 SaveHitInfo PROC
 
 	mov LastTurnOutcome, 2
@@ -3215,8 +3294,6 @@ PlayerShipSunk PROC
 
 	call Clrscr
 
-	mov LogCount, 0
-
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -3427,8 +3504,6 @@ ComputerShipSunk PROC
 
 	call Clrscr
 
-	mov LogCount, 0
-
 	call GenerateGameTitle
 	call GenerateMaps
 	call GenerateUIMechanics
@@ -3512,18 +3587,5 @@ ComputerWin PROC
 	call SetTextColor
 	ret
 ComputerWin ENDP
-GoToLog PROC
-mov ah, LogBegin
-mov al, LogCount
 
-add ah, al
-mov dh, ah
-mov dl, 88
-call GoToXY
-
-inc al
-mov LogCount, al
-
-ret
-GoToLog ENDP
 END main
